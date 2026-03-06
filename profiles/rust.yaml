@@ -2,7 +2,33 @@
 # Loaded when Cargo.toml detected
 
 name: rust
-version: "1.0"
+version: "1.5.6"
+description: "Rust projects using clippy for linting, cargo test for testing, and cargo build"
+
+# Model routing configuration
+models:
+  default: sonnet
+  planning: sonnet    # Sonnet 4.6 handles architecture decisions well
+  exploration: haiku  # Use haiku for fast codebase exploration
+  security: opus      # Use opus for security audits
+  by_phase:
+    init: haiku
+    understand: sonnet
+    plan: sonnet      # Upgrade to opus for "security" keywords
+    execute: sonnet
+    verify: sonnet
+    commit: haiku
+    evaluate: haiku
+
+# Extended thinking configuration
+thinking:
+  max_tokens: 16000
+  extended_for:
+    - architecture
+    - security
+    - unsafe-code
+    - lifetime-design
+    - concurrency
 
 # How to detect this profile
 detection:
@@ -16,6 +42,7 @@ detection:
 gates:
   lint:
     command: cargo clippy -- -D warnings
+    fix_command: cargo clippy --fix --allow-dirty
     description: Check code quality with clippy
 
   test:
@@ -32,6 +59,12 @@ gates:
     command: cargo fmt
     check_command: cargo fmt -- --check
     description: Format Rust code
+
+  security:
+    command: cargo audit
+    description: Audit Cargo dependencies for known vulnerabilities
+    requires:
+      - cargo-audit
 
 # Thresholds
 thresholds:
@@ -57,6 +90,27 @@ patterns:
 
   - name: axum
     indicator: axum
+
+# Web project detection (auto-loads UI/UX rules)
+web_indicators:
+  patterns:
+    - "actix-web"
+    - "axum"
+    - "rocket"
+    - "warp"
+    - "tower-http"
+  auto_rules: [ui-ux-design]
+
+# Infrastructure detection
+infrastructure:
+  docker:
+    indicators: [Dockerfile, docker-compose.yml]
+    commands:
+      build: docker build -t {project_name} .
+      test: docker-compose run --rm app cargo test
+  ci:
+    indicators: [.github/workflows/, .gitlab-ci.yml]
+    type: auto-detect
 
 # Conventions
 conventions:
@@ -89,3 +143,7 @@ ignore:
   - target
   - .git
   - Cargo.lock
+
+# Recommended Claude Code plugins
+plugins:
+  lsp: rust-analyzer-lsp@claude-plugins-official

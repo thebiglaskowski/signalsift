@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude-sentient.dev/schemas/team-state.schema.json",
+  "title": "Team State",
+  "description": "Schema for .claude/state/team-state.json written by task-completed and teammate-idle hooks",
+  "type": "object",
+  "required": ["teammates", "completed_tasks", "file_ownership"],
+  "properties": {
+    "teammates": {
+      "type": "object",
+      "description": "Map of teammate name to idle count",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "idleCount": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "completed_tasks": {
+      "type": "array",
+      "description": "History of completed task records (capped at MAX_COMPLETED_TASKS)",
+      "items": {
+        "type": "object",
+        "required": ["task_id", "teammate", "timestamp"],
+        "properties": {
+          "task_id": { "type": "string" },
+          "task_subject": { "type": "string" },
+          "teammate": { "type": "string" },
+          "files_changed": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "had_issues": { "type": "boolean" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "file_ownership": {
+      "type": "object",
+      "description": "Map of file path to owning teammate name (capped at MAX_FILE_OWNERSHIP)",
+      "additionalProperties": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}

@@ -64,6 +64,3 @@
 - [ ] No typos
 - [ ] Links are valid
 - [ ] Examples tested
-
-## Full Reference
-`reference/v1/template/.claude/rules/documentation.md`

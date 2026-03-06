@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude-sentient.dev/schemas/session-state.schema.json",
+  "title": "Session State",
+  "description": "Schema for .claude/state/session_start.json written by the session-start hook",
+  "type": "object",
+  "required": ["id", "timestamp", "cwd", "project_root", "profile"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^session-[0-9]+-[a-z0-9]+$",
+      "description": "Unique session identifier"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Session start ISO timestamp"
+    },
+    "cwd": {
+      "type": "string",
+      "description": "Working directory at session start"
+    },
+    "project_root": {
+      "type": "string",
+      "description": "Resolved project root (from git rev-parse or .claude/ walk)"
+    },
+    "gitBranch": {
+      "type": "string",
+      "description": "Current git branch name, or 'not-a-repo' / 'no-commits'"
+    },
+    "gitStatus": {
+      "type": "string",
+      "enum": ["clean", "dirty", "unknown"],
+      "description": "Git working tree status"
+    },
+    "profile": {
+      "type": ["string", "null"],
+      "description": "Detected project profile (python, typescript, go, etc.) or null"
+    },
+    "platform": {
+      "type": "string",
+      "description": "Node.js process.platform value"
+    },
+    "nodeVersion": {
+      "type": "string",
+      "description": "Node.js version string"
+    }
+  },
+  "additionalProperties": false
+}

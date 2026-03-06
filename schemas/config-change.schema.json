@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "config-change.schema.json",
+  "title": "ConfigChange",
+  "description": "Entry in config_changes.json — one record per ConfigChange hook invocation",
+  "type": "object",
+  "required": ["timestamp"],
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the config change was detected"
+    },
+    "file": {
+      "type": "string",
+      "description": "Path of the changed configuration file"
+    },
+    "changeType": {
+      "type": "string",
+      "description": "Section or type of change (e.g. 'hooks', 'permissions', 'env')"
+    }
+  },
+  "additionalProperties": false
+}

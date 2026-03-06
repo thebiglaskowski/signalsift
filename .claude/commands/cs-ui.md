@@ -1,7 +1,7 @@
 ---
 description: UI/UX audit and improvement for web projects
 argument-hint: [component|page|--full]
-allowed-tools: Read, Glob, Grep, Task, AskUserQuestion, mcp__puppeteer__puppeteer_navigate, mcp__puppeteer__puppeteer_screenshot
+allowed-tools: Read, Glob, Grep, Task, AskUserQuestion, Skill, mcp__puppeteer__puppeteer_navigate, mcp__puppeteer__puppeteer_screenshot
 ---
 
 # /cs-ui — UI/UX Audit
@@ -327,6 +327,23 @@ import styles from './Component.module.css'
 }
 ```
 </examples>
+
+## After Audit
+
+If UI issues were found, offer to fix:
+
+```
+AskUserQuestion:
+  question: "Fix the UI/UX issues found?"
+  header: "Fix"
+  options:
+    - label: "Yes, fix them (Recommended)"
+      description: "Invoke /cs-loop to implement UI improvements"
+    - label: "No, just the audit"
+      description: "Keep as design reference"
+```
+
+If yes: `Skill(skill="cs-loop", args="fix UI/UX issues: {top priorities}")`
 
 ## Checklist (loaded automatically)
 

@@ -2,7 +2,33 @@
 # Loaded when CMakeLists.txt or Makefile detected
 
 name: cpp
-version: "1.0"
+version: "1.5.6"
+description: "C/C++ projects using clang-tidy for linting, ctest for testing, and cmake/make for building"
+
+# Model routing configuration
+models:
+  default: sonnet
+  planning: sonnet    # Sonnet 4.6 handles architecture decisions well
+  exploration: haiku  # Use haiku for fast codebase exploration
+  security: opus      # Use opus for security audits
+  by_phase:
+    init: haiku
+    understand: sonnet
+    plan: sonnet      # Upgrade to opus for "security" keywords
+    execute: sonnet
+    verify: sonnet
+    commit: haiku
+    evaluate: haiku
+
+# Extended thinking configuration
+thinking:
+  max_tokens: 16000
+  extended_for:
+    - architecture
+    - security
+    - memory-management
+    - concurrency
+    - template-metaprogramming
 
 # How to detect this profile
 detection:
@@ -21,6 +47,7 @@ detection:
 gates:
   lint:
     command: clang-tidy **/*.cpp **/*.c
+    fix_command: clang-tidy --fix **/*.cpp **/*.c
     alternative: cppcheck --enable=all .
     description: Check code quality
 
@@ -30,8 +57,8 @@ gates:
     description: Run test suite
 
   build:
-    cmake_command: cmake --build build
-    make_command: make
+    command: cmake --build build
+    alternative: make
     description: Build project
 
   format:
@@ -66,6 +93,17 @@ patterns:
 
   - name: boost
     indicator: boost/
+
+# Infrastructure detection
+infrastructure:
+  docker:
+    indicators: [Dockerfile, docker-compose.yml]
+    commands:
+      build: docker build -t {project_name} .
+      test: docker-compose run --rm app ctest
+  ci:
+    indicators: [.github/workflows/, .gitlab-ci.yml, CMakePresets.json]
+    type: auto-detect
 
 # Conventions
 conventions:
@@ -114,3 +152,7 @@ ignore:
   - "*.a"
   - "*.so"
   - "*.dylib"
+
+# Recommended Claude Code plugins
+plugins:
+  lsp: clangd-lsp@claude-plugins-official

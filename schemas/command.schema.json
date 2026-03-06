@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude-sentient.dev/schemas/command.schema.json",
+  "title": "Command Definition",
+  "description": "Schema for explicit slash commands (/cs-*)",
+  "allOf": [
+    { "$ref": "base.schema.json" }
+  ],
+  "type": "object",
+  "required": ["command", "category"],
+  "properties": {
+    "command": {
+      "type": "string",
+      "pattern": "^cs-[a-z][a-z0-9-]*$",
+      "description": "Slash command name (must start with cs-)"
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^cs-[a-z][a-z0-9-]*$"
+      },
+      "description": "Alternative command names"
+    },
+    "arguments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": ["string", "number", "boolean", "array"]
+          },
+          "required": { "type": "boolean", "default": false },
+          "default": {},
+          "description": { "type": "string" },
+          "examples": {
+            "type": "array",
+            "items": {}
+          }
+        },
+        "required": ["name", "type"]
+      },
+      "description": "Positional arguments"
+    },
+    "flags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "short": {
+            "type": "string",
+            "maxLength": 1,
+            "description": "Single-letter shorthand"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["boolean", "string", "number"]
+          },
+          "default": {},
+          "description": { "type": "string" }
+        },
+        "required": ["name"]
+      },
+      "description": "Optional flags (--flag)"
+    },
+    "model": {
+      "type": "string",
+      "enum": ["haiku", "sonnet", "opus"],
+      "default": "sonnet"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["planning", "execution", "quality", "git", "docs", "operations", "setup"],
+      "description": "Command category for organization"
+    },
+    "invokes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Skills or commands this command invokes"
+    },
+    "examples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": { "type": "string" },
+          "command": { "type": "string" },
+          "output": { "type": "string" }
+        },
+        "required": ["command"]
+      },
+      "description": "Usage examples"
+    },
+    "content": {
+      "type": "string",
+      "minLength": 100,
+      "description": "Markdown content with instructions"
+    }
+  }
+}

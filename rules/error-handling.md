@@ -70,6 +70,3 @@ res.status(200).json({ error: 'Not found' });  // Should be 404
 - [ ] Dev logs include context
 - [ ] No sensitive data in messages
 - [ ] Unexpected errors re-thrown
-
-## Full Reference
-`reference/v1/template/.claude/rules/error-handling.md`

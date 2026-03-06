@@ -77,6 +77,3 @@ Response includes:
 - [ ] Structured error responses
 - [ ] Pagination on lists
 - [ ] Rate limiting headers
-
-## Full Reference
-`reference/v1/template/.claude/rules/api-design.md`

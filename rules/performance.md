@@ -82,6 +82,3 @@ for (user of users) {
 - [ ] No N+1 queries
 - [ ] Pagination on lists
 - [ ] Caching where appropriate
-
-## Full Reference
-`reference/v1/template/.claude/rules/performance.md`

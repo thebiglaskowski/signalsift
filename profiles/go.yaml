@@ -2,18 +2,19 @@
 # Loaded when go.mod or *.go detected
 
 name: go
-version: "1.1"
+version: "1.5.6"
+description: "Go projects using golangci-lint for linting and go test for testing"
 
 # Model routing configuration
 models:
   default: sonnet
-  planning: opus      # Use opus for architecture decisions
+  planning: sonnet    # Sonnet 4.6 handles architecture decisions well
   exploration: haiku  # Use haiku for fast codebase exploration
   security: opus      # Use opus for security audits
   by_phase:
     init: haiku
     understand: sonnet
-    plan: sonnet      # Upgrade to opus for "architecture" keywords
+    plan: sonnet      # Upgrade to opus for "security" keywords
     execute: sonnet
     verify: sonnet
     commit: haiku
@@ -41,6 +42,7 @@ detection:
 gates:
   lint:
     command: golangci-lint run
+    fix_command: golangci-lint run --fix
     alternative: go vet ./...
     description: Check code quality and style
 
@@ -58,6 +60,12 @@ gates:
     command: gofmt -w .
     check_command: gofmt -d .
     description: Format Go code
+
+  security:
+    command: govulncheck ./...
+    description: Scan Go modules for known vulnerabilities
+    requires:
+      - govulncheck
 
 # Thresholds
 thresholds:
@@ -83,6 +91,31 @@ patterns:
 
   - name: echo
     indicator: "github.com/labstack/echo"
+
+# Web project detection (auto-loads UI/UX rules)
+web_indicators:
+  patterns:
+    - "github.com/gin-gonic/gin"
+    - "github.com/labstack/echo"
+    - "github.com/gofiber/fiber"
+    - "net/http"
+    - "html/template"
+  auto_rules: [ui-ux-design]
+
+# Infrastructure detection
+infrastructure:
+  docker:
+    indicators: [Dockerfile, docker-compose.yml]
+    commands:
+      build: docker build -t {project_name} .
+      up: docker-compose up -d
+      test: docker-compose run --rm app go test ./...
+  ci:
+    indicators: [.github/workflows/, .gitlab-ci.yml]
+    type: auto-detect
+  kubernetes:
+    indicators: [k8s/, kubernetes/, helm/]
+    type: kubernetes
 
 # Conventions
 conventions:
@@ -125,3 +158,7 @@ ignore:
   - "*.exe"
   - "*.test"
   - "*.out"
+
+# Recommended Claude Code plugins
+plugins:
+  lsp: gopls-lsp@claude-plugins-official

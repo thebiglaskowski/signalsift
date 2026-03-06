@@ -1,19 +1,31 @@
 {
-  "timestamp": "2026-02-05T02:42:52.547Z",
-  "filesModified": 30,
+  "timestamp": "2026-03-06T21:48:36.267Z",
+  "filesModified": 0,
   "changesByType": {
-    "python": 29,
+    "python": 0,
     "typescript": 0,
     "javascript": 0,
     "go": 0,
-    "other": 1
+    "other": 0
   },
   "git": {
     "clean": false,
-    "uncommittedChanges": 5
+    "uncommittedChanges": 110
   },
-  "recommendations": [
-    "Consider committing changes before ending session",
-    "Run ruff check and pytest before finalizing"
-  ]
+  "recommendations": [],
+  "integrityChecks": {
+    "gatesRan": true,
+    "lastGatePassed": null,
+    "codeFilesModified": false,
+    "codeModifiedWithoutGates": false
+  },
+  "memoryEffectiveness": {
+    "totalPrompts": 28,
+    "topicsDetected": 2,
+    "topicCounts": {
+      "documentation": 5,
+      "errorHandling": 1
+    },
+    "noTopicPrompts": 22
+  }
 }

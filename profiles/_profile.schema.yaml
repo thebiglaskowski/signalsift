@@ -6,7 +6,7 @@ schema:
     - name
     - version
     - description
-    - detect
+    - detection
 
   properties:
     name:
@@ -23,7 +23,7 @@ schema:
       type: string
       description: Human-readable description
 
-    detect:
+    detection:
       type: object
       description: How to detect this project type
       properties:

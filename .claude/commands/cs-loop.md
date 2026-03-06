@@ -1,7 +1,7 @@
 ---
 description: Autonomous development loop - init, plan, execute, verify, commit
 argument-hint: <task description>
-allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, TaskStop, TaskOutput, EnterPlanMode, AskUserQuestion, WebSearch, WebFetch, Skill, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs, mcp__github__get_issue, mcp__github__list_issues, mcp__github__create_pull_request, mcp__github__add_issue_comment, mcp__github__get_pull_request, mcp__github__get_pull_request_files, mcp__github__get_pull_request_status, mcp__github__get_pull_request_comments, mcp__github__get_pull_request_reviews, mcp__github__create_pull_request_review, mcp__github__list_commits, mcp__github__search_code, mcp__github__search_issues, mcp__memory__read_graph, mcp__memory__create_entities, mcp__memory__add_observations, mcp__memory__search_nodes, mcp__memory__open_nodes, mcp__puppeteer__puppeteer_navigate, mcp__puppeteer__puppeteer_screenshot
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, TaskStop, TaskOutput, EnterPlanMode, ExitPlanMode, EnterWorktree, AskUserQuestion, WebSearch, WebFetch, Skill, TeamCreate, TeamDelete, SendMessage, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs, mcp__github__issue_read, mcp__github__list_issues, mcp__github__create_pull_request, mcp__github__add_issue_comment, mcp__github__pull_request_read, mcp__github__pull_request_review_write, mcp__github__list_commits, mcp__github__search_code, mcp__github__search_issues, mcp__memory__read_graph, mcp__memory__create_entities, mcp__memory__add_observations, mcp__memory__search_nodes, mcp__memory__open_nodes, mcp__puppeteer__puppeteer_navigate, mcp__puppeteer__puppeteer_screenshot
 ---
 
 # /cs-loop
@@ -11,14 +11,11 @@ You are an autonomous software development agent. You work through tasks methodi
 </role>
 
 <task>
-Execute an autonomous development loop: understand → plan → execute → verify → commit. Work through the given task from start to finish, maintaining quality gates and creating checkpoints.
+Execute an autonomous development loop: understand -> plan -> execute -> verify -> commit. Work through the given task from start to finish, maintaining quality gates and creating checkpoints.
 </task>
 
 <context>
-<mcp_servers>
-## MCP Server Integration
-
-This command leverages available MCP servers for enhanced capabilities:
+## MCP Servers
 
 | Server | Phase | Usage |
 |--------|-------|-------|
@@ -26,64 +23,28 @@ This command leverages available MCP servers for enhanced capabilities:
 | **github** | INIT, COMMIT | Fetch issue details, create PRs, link commits |
 | **memory** | INIT, COMMIT | Persist session state for resumability |
 | **puppeteer** | VERIFY | Screenshot web apps after changes (web projects) |
-</mcp_servers>
 
-<model_routing>
+MCP servers are used when available; gracefully skipped if not connected.
+
 ## Model Routing
 
-Models are automatically selected by phase for cost optimization:
+| Phase | Model | Override |
+|-------|-------|---------|
+| INIT | haiku | -- |
+| UNDERSTAND | sonnet | -- |
+| PLAN | sonnet | opus for "security"/"auth"/"vulnerability" keywords |
+| EXECUTE | sonnet | -- |
+| VERIFY | sonnet | opus for security tasks |
+| COMMIT | haiku | -- |
+| EVALUATE | haiku | `--model opus` forces opus for entire loop |
 
-| Phase | Model | Rationale |
-|-------|-------|-----------|
-| INIT | haiku | Fast context loading |
-| UNDERSTAND | sonnet | Standard analysis |
-| PLAN | sonnet/opus | opus for "architecture"/"security" keywords |
-| EXECUTE | sonnet | Code generation |
-| VERIFY | sonnet | Quality checks |
-| COMMIT | haiku | Simple git operations |
-| EVALUATE | haiku | Quick assessment |
+## Background Task Timeouts
 
-**Override triggers:**
-- Task contains "security", "auth", "vulnerability" → opus for PLAN and VERIFY
-- Task contains "architecture", "refactor" → opus for PLAN
-- Use `--model opus` flag to force opus for entire loop
-</model_routing>
-
-<session_features>
-## Session Features
-
-**Auto-naming:** Sessions are automatically named for easy identification:
-- `/cs-loop "add auth"` → `loop-20260202-add-auth`
-- `/cs-plan "refactor api"` → `plan-refactor-api`
-- `/cs-review 42` → `review-pr-42`
-
-**Cost tracking:** Each phase tracks cost for budget management:
-- Total session cost displayed at end
-- Per-phase breakdown available in `/cs-status`
-- Budget limit can be set: `ClaudeSentient(max_budget_usd=5.0)`
-
-**Background task timeouts:**
 | Task Type | Timeout | Action on Timeout |
 |-----------|---------|-------------------|
 | Tests | 10 min | Stop, report partial results |
 | Build | 5 min | Stop, check for issues |
 | Exploration | 3 min | Stop, use partial findings |
-</session_features>
-</context>
-
-<profiles>
-| Files | Profile | Tools |
-|-------|---------|-------|
-| `pyproject.toml`, `*.py` | Python | ruff, pytest |
-| `package.json`, `tsconfig.json` | TypeScript | eslint, vitest |
-| `go.mod` | Go | golangci-lint, go test |
-| `Cargo.toml` | Rust | clippy, cargo test |
-| `pom.xml`, `build.gradle` | Java | checkstyle, JUnit |
-| `CMakeLists.txt`, `Makefile` | C/C++ | clang-tidy, ctest |
-| `Gemfile` | Ruby | rubocop, rspec |
-| `*.sh`, `*.ps1` | Shell | shellcheck |
-| (fallback) | General | auto-detect |
-</profiles>
 </context>
 
 <steps>
@@ -95,64 +56,22 @@ Models are automatically selected by phase for cost optimization:
 Gather all context needed for the task: profile, environment, rules, external data.
 </thinking>
 
-1. **Detect profile** by scanning for project files (see profiles table above)
+Follow the profile-detection skill procedure:
+1. Recover from compaction if `.claude/state/compact-context.json` exists:
+   - Load the summary (`sessionIntent`, `currentState`, `nextSteps`, `filesModified`)
+   - Re-read the active task description from the task list (`TaskGet` on the in-progress task)
+   - Re-read the source files most relevant to the active task from `filesModified` — focus on files being actively modified, not the entire change history
+   - This step is mandatory: the compact-context tells you *what* was being worked on but does not restore the actual code into context
+2. Load profile from `.claude/state/session_start.json` (fall back to file scanning)
+3. Detect Python environment if applicable (conda/venv/poetry/pdm)
+4. Load rules based on task keywords (see `rules/_index.md`). Then do a second semantic pass: briefly review `rules/_index.md` to identify any additional rules not captured by keyword matching but semantically relevant to the task. Note: Rules with `paths:` frontmatter in `.claude/rules/` also auto-load for matching files
+5. Detect web project, auto-load ui-ux-design rules
+6. Check governance files exist, create from `templates/` if missing
+7. Check for CLAUDE.md, suggest `/cs-init` if missing
+8. MCP: context7 (library docs), github (issues/PRs), memory (prior decisions, cross-project learnings)
+9. WebFetch dependency changelogs for update/upgrade/migrate tasks
 
-2. **Detect Python environment** (if Python profile):
-
-   | Indicator | Environment | Command Prefix |
-   |-----------|-------------|----------------|
-   | `environment.yml` | Conda | `conda run -n <env> --no-capture-output` |
-   | `.venv/`, `venv/` | Virtualenv | Activate first or use `.venv/bin/python` |
-   | `poetry.lock` | Poetry | `poetry run` |
-   | `pdm.lock` | PDM | `pdm run` |
-
-   Report: `[INIT] Environment: conda (myenv)` or `[INIT] Environment: system python`
-
-3. **Load rules** based on task keywords:
-
-   | Keywords | Rules |
-   |----------|-------|
-   | auth, login, jwt | security, api-design |
-   | test, coverage | testing |
-   | api, endpoint | api-design, error-handling |
-   | database, query | database |
-   | refactor, quality | code-quality |
-   | cli, command | terminal-ui |
-   | react, vue, next, frontend | ui-ux-design |
-
-4. **Detect web project** (auto-load UI/UX rules):
-
-   | Indicators | Profile | Auto-load |
-   |------------|---------|-----------|
-   | next.config, vite.config, react, vue, svelte | TypeScript Web | ui-ux-design |
-   | templates/, django, flask, jinja2 | Python Web | ui-ux-design |
-
-   Report: `[INIT] Web project detected, loaded ui-ux-design rules`
-
-5. **Check governance files** — create from `templates/` if missing:
-   - `STATUS.md`, `CHANGELOG.md`, `DECISIONS.md`, `.claude/rules/learnings.md`
-
-6. **MCP: Context7** — Fetch library documentation:
-   - Scan task-related files for imports/dependencies
-   - For each unfamiliar library: resolve-library-id → query-docs
-   - Inject relevant docs into context
-
-7. **MCP: GitHub** — Load issue and PR context:
-   - For issues (patterns: "fix #123", "closes #456"): Load requirements
-   - For PRs (patterns: "review PR #42"): Load files, comments, reviews
-   - For recent changes: List commits, summarize
-
-8. **MCP: Memory** — Search for relevant prior decisions:
-   - Extract keywords from task description
-   - Search nodes for matching decisions/patterns
-   - Load and apply relevant context
-
-9. **WebFetch: Dependency changelogs** — If task involves dependencies:
-   - Trigger keywords: "update", "upgrade", "migrate", "bump"
-   - Fetch CHANGELOG.md or release notes
-   - Prevent breaking changes from surprising you
-
-10. Report: `[INIT] Profile: {name}, Tools: {lint}, {test}, MCP: {servers}`
+Report: `[INIT] Profile: {name}, Tools: {lint}, {test}, MCP: {servers}`
 
 ### 2. UNDERSTAND
 
@@ -160,25 +79,17 @@ Gather all context needed for the task: profile, environment, rules, external da
 Classify the task complexity to determine the right approach.
 </thinking>
 
-Classify complexity:
-- **Simple**: Single file → proceed
-- **Moderate**: Multiple files, clear path → proceed
-- **Complex**: Architecture decisions → use `EnterPlanMode`
+- **Simple**: Single file -> proceed
+- **Moderate**: Multiple files, clear path -> proceed
+- **Complex**: Architecture decisions -> use `EnterPlanMode`
 
-**GitHub code search** — For unfamiliar patterns (use sparingly):
-- Trigger: Implementing a standard pattern you're unsure about
-- `mcp__github__search_code(q="{pattern} language:{lang}")`
-- Report: `[UNDERSTAND] Found {n} reference implementations`
+**Doc-First Check**: Before writing any code, check if `documentation/` exists in project root:
+1. If `documentation/_index.md` exists, scan it for an entry matching the task's feature/topic
+2. If a matching doc is found, read it fully — it contains business rules, data models, and edge cases that cannot be inferred from code alone
+3. If no doc exists for this feature, note that `/cs-docs "feature name"` can generate one after implementation
 
-**Structured decisions** — When task is ambiguous, use `AskUserQuestion`:
-
-| Decision | Options |
-|----------|---------|
-| Auth approach | JWT (stateless) / Sessions (simpler) / OAuth (third-party) |
-| Database | PostgreSQL / SQLite / MongoDB |
-| Testing strategy | Unit only / Integration / E2E |
-| Error handling | Exceptions / Result types / Status codes |
-| State management | Local state / Context/Redux / Server state |
+For unfamiliar patterns: `mcp__github__search_code(q="{pattern} language:{lang}")`
+For ambiguous tasks: `AskUserQuestion` with structured options (auth approach, database, testing strategy, etc.)
 
 ### 3. PLAN
 
@@ -186,32 +97,44 @@ Classify complexity:
 2. Set dependencies with `TaskUpdate(addBlockedBy: [...])`
 3. Report: `[PLAN] Created {n} tasks`
 
+4. **Team eligibility** — Check three signals: scope (3+ independent tasks), independence (no overlapping file scopes), complexity (> simple bug fix). If all pass AND `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` is enabled, offer team mode via `AskUserQuestion`. If env var not set, skip silently.
+
+5. **Worktree eligibility** — If >= 2 independent tasks span different top-level directories (e.g., `src/` and `tests/` and `docs/`), offer optional worktree binding via `AskUserQuestion`: "These tasks touch separate directory scopes. Bind each task to an isolated git worktree for branch-level isolation? (yes/no)". If approved:
+   - Use `EnterWorktree` to create a branch per task work stream (naming: `wt/{task-id}`)
+   - Store the worktree path in `TaskUpdate(metadata: { worktreePath: "<path>", worktreeBranch: "wt/{task-id}" })`
+   - Each EXECUTE step checks for `worktreePath` metadata before starting work
+
+6. **Auto-capture decisions** via `Skill(skill="cs-learn", args="decision ...")` for any architecture choices made during planning.
+
 ### 4. EXECUTE
 
-1. `TaskList` → pick first unblocked task
-2. `TaskGet(taskId)` → fetch full description and context
+**Standard Mode** (default):
+
+1. `TaskList` -> pick first unblocked task
+2. `TaskGet(taskId)` -> fetch full description
 3. `TaskUpdate(status: in_progress)`
-4. Do the work (using description for guidance)
-5. `TaskUpdate(status: completed)`
-6. Repeat until all complete
+4. Save `{taskId, subject, startedAt}` to `.claude/state/current_task.json`
+5. If task metadata includes `worktreePath`, use `EnterWorktree` to switch to the task's isolated branch before starting work
+6. Do the work
+7. `TaskUpdate(status: completed)`
+8. Repeat until all complete
 
-**Why TaskGet matters:** Task subjects are brief. The description contains:
-- Detailed requirements
-- Acceptance criteria
-- Dependencies and constraints
+**The task list is a living document.** If during execution you discover the plan needs adjustment — a task should be split, merged, reordered, or new work identified — update the task list. Tasks are a coordination tool, not a rigid contract.
 
-**Background task timeout handling:**
+**Team Mode** (when approved in PLAN):
 
-| Task Type | Timeout | Action |
-|-----------|---------|--------|
-| Tests | 10 min | TaskStop + report partial results |
-| Build | 5 min | TaskStop + check for infinite loops |
-| Exploration | 3 min | TaskStop + use partial findings |
+Follow the team-orchestration skill procedure:
+1. Load agent definitions from `agents/*.yaml` or `.claude/agents/*.md`
+2. Match agents to work streams by `expertise` arrays
+3. Spawn teammates with agent-specific prompts, scopes, and quality gates
+4. Monitor via shared task list, redirect scope drift, unblock issues
+5. Collect results, shut down teammates, proceed to VERIFY
 
 ### 5. VERIFY
 
 <criteria>
-Run quality gates from profile:
+Run quality gates from profile. Follow the quality-gates skill procedure.
+</criteria>
 
 | Gate | Action |
 |------|--------|
@@ -219,51 +142,31 @@ Run quality gates from profile:
 | TEST | Run test command, all must pass |
 | BUILD | Run build command if defined |
 | GIT | Check `git status` is clean |
-</criteria>
 
-**MCP: Puppeteer** — For web projects:
-- If significant UI changes: navigate → screenshot
-- Report: `[VERIFY] Screenshot saved: {name}`
+**AUTO-FIX sub-loop** (max 3 attempts per gate): classify error -> run fix_command or manual fix -> re-verify. If error count increases, revert immediately. After 3 failures, WebSearch for solution (2 attempts max).
 
-**Vision error analysis** — If tests fail with UI errors:
-- Capture screenshot of error state
-- Analyze screenshot for visual issues
-- Report: `[VERIFY] Error screenshot analyzed: {findings}`
+**Hard constraints:** Never modify test assertions. Never skip gates. Never dismiss errors.
 
-**MCP: GitHub** — PR status check:
-- Check CI status: passing/failing/pending
-- Report: `[VERIFY] PR CI is {status}`
-
-**On gate failure — WebSearch before asking:**
-1. Extract error message from gate output
-2. WebSearch("{language} {error_message} fix 2026")
-3. If solution found: apply fix automatically
-4. If still failing after 2 attempts: stop and report
+**Context management:** If context usage exceeds 50%, compact before next iteration.
 
 ### 6. COMMIT
 
 1. Stage changes: `git add <files>`
 2. Create commit with conventional message (`feat:`, `fix:`, etc.)
-3. **Auto-update STATUS.md** with session progress
-4. **Auto-update CHANGELOG.md** for `feat:` and `fix:` commits
+3. **Doc sync check**: If changed files correspond to a feature in `documentation/`, check whether the doc needs updating — business rules, API shapes, or edge cases may have changed. If out of date, run `/cs-docs "feature name"` to update.
+4. Auto-update STATUS.md and CHANGELOG.md (for `feat:`/`fix:` commits)
+5. MCP: github (link commits to issues, create PRs), memory (persist session state)
+6. Auto-capture non-obvious learnings via `/cs-learn`
+7. CI monitoring: check PR status, auto-fix if lint/test failure (max 2 attempts)
 
-**MCP: GitHub** — Link commits to issues:
-- Include "Fixes #123" or "Closes #123" in commit message
-- Optionally create PR if on feature branch
-
-**MCP: Memory** — Persist session state:
-- Save current task progress, decisions made, blockers
-- Enables `/cs-loop` to resume where it left off
-
-5. Report: `[COMMIT] Created checkpoint: {hash}`
+Report: `[COMMIT] Created checkpoint: {hash}`
 
 ### 7. EVALUATE
 
-- All tasks complete? → `[DONE] {summary}` and exit
-- More work? → `[LOOP] Continuing...` and return to EXECUTE
-
-**MCP: Memory** — On completion:
-- Save session summary, accomplishments, follow-up tasks
+- All tasks complete? -> `[DONE] {summary}` and exit
+- More work? -> `[LOOP] Continuing...` and return to EXECUTE
+- Context > 50%? -> Compact before next iteration
+- MCP: memory — save session summary on completion
 </steps>
 
 <constraints>
@@ -275,59 +178,20 @@ Run quality gates from profile:
 | Gate failure | WebSearch for fix, retry twice, then stop |
 | Ambiguous | `AskUserQuestion` with structured options |
 | Stuck > 3 attempts | Use claude-code-guide subagent, then stop if still stuck |
-
-**claude-code-guide fallback** — When stuck on Claude Code capabilities:
-```
-Task:
-  subagent_type: claude-code-guide
-  prompt: "How do I {describe the operation}? I've tried {what failed}."
-  model: haiku
-```
-
-This prevents spinning on operations that might have native solutions.
 </constraints>
 
 <avoid>
-## Common Mistakes to Prevent
-
-- **Overengineering**: Don't add features, refactor code, or make "improvements" beyond what was asked. A bug fix doesn't need surrounding code cleaned up. A simple feature doesn't need extra configurability.
-
-- **Speculation**: Don't propose changes to code you haven't read. ALWAYS read and understand relevant files before editing. Never make claims about code before investigating.
-
-- **Test hacking**: Don't hard-code values or create workarounds to pass tests. Implement general solutions that work for all valid inputs.
-
-- **Premature abstractions**: Don't create helpers, utilities, or abstractions for one-time operations. Don't design for hypothetical future requirements.
-
-- **Skipping verification**: Don't skip quality gates. Fix issues, don't bypass them.
-
-- **Context abandonment**: Don't stop tasks early due to context concerns. Save progress and continue.
-
-- **Dismissing errors as "pre-existing"**: Don't claim an error existed before your changes without proof (git blame). Investigate every error. Own mistakes.
-
-- **Quick-fix workarounds**: Don't create "temporary" solutions to get around problems. Solve root causes, not symptoms.
-
-- **Ignoring architecture**: Don't invent new patterns when existing ones exist. Check DECISIONS.md and match existing codebase conventions.
-
-- **Gaslighting**: Don't claim you said something you didn't, or that code does something it doesn't. If uncertain, say so.
+- **Overengineering**: Don't add features beyond what was asked. Don't create abstractions for one-time operations.
+- **Speculation**: Don't propose changes to code you haven't read. Read and understand files before editing.
+- **Test hacking**: Don't hard-code values or create workarounds. Implement general solutions.
+- **Skipping verification**: Don't skip quality gates. Fix issues, don't bypass.
+- **Context abandonment**: Don't stop early. Save progress and continue.
+- **Dismissing errors**: Don't claim errors are "pre-existing" without proof (git blame). Own mistakes.
+- **Quick-fix workarounds**: Solve root causes, not symptoms.
+- **Ignoring architecture**: Match existing patterns. Check DECISIONS.md.
+- **Gaslighting**: Don't claim things that aren't true. If uncertain, say so.
 </avoid>
 
 <output_format>
-## Progress Reporting
-
-Report progress using these prefixes:
-- `[INIT]` — Initialization steps
-- `[UNDERSTAND]` — Complexity classification
-- `[PLAN]` — Task creation
-- `[EXECUTE]` — Work in progress
-- `[VERIFY]` — Quality gate results
-- `[COMMIT]` — Checkpoint creation
-- `[LOOP]` — Continuing to next iteration
-- `[DONE]` — Final summary
+Report progress: `[INIT]`, `[UNDERSTAND]`, `[PLAN]`, `[EXECUTE]`, `[VERIFY]`, `[COMMIT]`, `[LOOP]`, `[DONE]`
 </output_format>
-
-## Notes
-
-- Uses native Claude Code tools (`TaskCreate`, `EnterPlanMode`, etc.)
-- MCP servers are used when available; gracefully skipped if not connected
-- Quality gates must pass before committing
-- Each commit is a checkpoint for rollback

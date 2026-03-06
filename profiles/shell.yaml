@@ -2,7 +2,31 @@
 # Loaded when .sh or .ps1 scripts detected
 
 name: shell
-version: "1.0"
+version: "1.5.6"
+description: "Shell and PowerShell projects using shellcheck and PSScriptAnalyzer for linting"
+
+# Model routing configuration
+models:
+  default: sonnet
+  planning: sonnet    # Sonnet 4.6 handles architecture decisions well
+  exploration: haiku
+  security: opus      # Use opus for security audits
+  by_phase:
+    init: haiku
+    understand: sonnet
+    plan: sonnet
+    execute: sonnet
+    verify: sonnet
+    commit: haiku
+    evaluate: haiku
+
+# Extended thinking configuration
+thinking:
+  max_tokens: 16000
+  extended_for:
+    - security
+    - pipeline-design
+    - error-handling
 
 # How to detect this profile
 detection:
@@ -19,7 +43,7 @@ detection:
 gates:
   lint:
     command: shellcheck **/*.sh
-    powershell_command: Invoke-ScriptAnalyzer -Path . -Recurse
+    alternative: Invoke-ScriptAnalyzer -Path . -Recurse
     description: Check shell script quality
 
   test:
@@ -49,6 +73,12 @@ patterns:
 
   - name: installer
     indicator: install.sh, setup.sh
+
+# Infrastructure detection
+infrastructure:
+  ci:
+    indicators: [.github/workflows/, .gitlab-ci.yml]
+    type: auto-detect
 
 # Conventions
 conventions:
@@ -95,3 +125,7 @@ ignore:
   - node_modules
   - __pycache__
   - "*.log"
+
+# Recommended Claude Code plugins
+plugins:
+  lsp: null

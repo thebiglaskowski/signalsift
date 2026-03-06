@@ -1,7 +1,7 @@
 ---
 description: Review a pull request with automated analysis
 argument-hint: <PR number or URL>
-allowed-tools: Read, Glob, Grep, Task, AskUserQuestion, mcp__github__get_pull_request, mcp__github__get_pull_request_files, mcp__github__get_pull_request_comments, mcp__github__get_pull_request_reviews, mcp__github__create_pull_request_review, mcp__github__search_code
+allowed-tools: Read, Glob, Grep, Task, AskUserQuestion, Skill, WebSearch, mcp__github__pull_request_read, mcp__github__pull_request_review_write, mcp__github__search_code
 ---
 
 # /cs-review
@@ -35,17 +35,8 @@ Gather all available context about the PR before analyzing.
 </thinking>
 
 ```
-Step 1: mcp__github__get_pull_request(owner, repo, pull_number)
-  → Get title, description, author, base/head branches
-
-Step 2: mcp__github__get_pull_request_files(owner, repo, pull_number)
-  → List all changed files with additions/deletions
-
-Step 3: mcp__github__get_pull_request_comments(owner, repo, pull_number)
-  → Load existing review comments
-
-Step 4: mcp__github__get_pull_request_reviews(owner, repo, pull_number)
-  → Check current approval status
+Step 1: mcp__github__pull_request_read(owner, repo, pull_number)
+  → Get title, description, author, base/head branches, changed files, comments, reviews
 
 Report: [REVIEW] PR #{n}: {title} by @{author}
         {files_changed} files changed (+{additions}/-{deletions})
@@ -76,7 +67,24 @@ mcp__github__search_code(q="{pattern} language:{lang}")
 → Note if PR deviates from standard patterns
 ```
 
-### 5. Generate Review
+### 5. SAST Scan (Optional)
+
+If semgrep, bandit, or brakeman is available in the project, run a targeted scan on changed files:
+
+```
+# Python (bandit)
+bandit -r {changed_files} -f json -q
+
+# Any language (semgrep)
+semgrep --config=auto {changed_files} --json --quiet
+
+# Ruby (brakeman)
+brakeman --no-pager -q --only-files {changed_files}
+```
+
+Surface any findings inline as line-specific comments in the review. If no SAST tool is available, skip this step silently.
+
+### 6. Generate Review
 
 Compile findings into a review (see output_format below).
 
@@ -100,7 +108,7 @@ AskUserQuestion:
 ### 7. Submit Review
 
 ```
-mcp__github__create_pull_request_review(
+mcp__github__pull_request_review_write(
   owner, repo, pull_number,
   event: "COMMENT" | "APPROVE" | "REQUEST_CHANGES",
   body: {review summary},
@@ -225,6 +233,23 @@ User: Approve
 [REVIEW] Submitted APPROVE review on PR #42
 ```
 </examples>
+
+## After Review
+
+If changes are needed, offer to implement:
+
+```
+AskUserQuestion:
+  question: "Implement the changes suggested in this review?"
+  header: "Implement"
+  options:
+    - label: "Yes, fix the issues (Recommended)"
+      description: "Invoke /cs-loop to address review feedback"
+    - label: "No, just the review"
+      description: "Keep as feedback for manual implementation"
+```
+
+If yes: `Skill(skill="cs-loop", args="address PR review feedback: {summary of changes needed}")`
 
 ## Notes
 

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude-sentient.dev/schemas/agent.schema.json",
+  "title": "Agent Definition",
+  "description": "Schema for specialized agent role definitions used by /cs-team",
+  "allOf": [
+    { "$ref": "base.schema.json" }
+  ],
+  "type": "object",
+  "required": ["role", "expertise", "spawn_prompt", "quality_gates"],
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": ["implementer", "reviewer", "researcher", "tester", "architect"],
+      "description": "Agent role type that determines how the agent is used in teams"
+    },
+    "expertise": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 3,
+      "description": "Areas of expertise used to match agents to work streams"
+    },
+    "spawn_prompt": {
+      "type": "string",
+      "minLength": 50,
+      "description": "Detailed prompt used to initialize the agent teammate"
+    },
+    "quality_gates": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["lint", "test", "build"]
+      },
+      "minItems": 1,
+      "description": "Quality gates the agent must run before completing tasks"
+    },
+    "rules_to_load": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Rule files from rules/ to load into agent context"
+    },
+    "file_scope_hints": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Glob patterns indicating files this agent typically works with"
+    }
+  }
+}

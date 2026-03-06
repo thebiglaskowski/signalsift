@@ -36,7 +36,7 @@ uv pip install -e .
 
 # Optional: NLP (spaCy) for smart keyword matching
 uv pip install -e ".[nlp]"
-uv run python -m spacy download en_core_web_md
+uv pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.8.0/en_core_web_md-3.8.0-py3-none-any.whl
 
 # Optional: AI summarization (OpenAI / Anthropic)
 uv pip install -e ".[ai]"
@@ -46,7 +46,7 @@ uv pip install -e ".[semantic]"
 
 # Or install everything at once
 uv pip install -e ".[all]"
-uv run python -m spacy download en_core_web_md
+uv pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.8.0/en_core_web_md-3.8.0-py3-none-any.whl
 
 # Initialize with example sources
 uv run sift init
@@ -68,13 +68,13 @@ Edit `config.yaml` or use the CLI:
 
 ```bash
 # Add a subreddit
-sift sources add reddit programming
+uv run sift sources add reddit programming
 
 # Add a YouTube channel
-sift sources add youtube UCxyz123
+uv run sift sources add youtube UCxyz123
 
 # See what you're tracking
-sift sources list
+uv run sift sources list
 ```
 
 ### Set Your Keywords
@@ -83,10 +83,10 @@ Tell SignalSift what to look for:
 
 ```bash
 # Add keywords
-sift keywords add "machine learning" "python tips" "side project"
+uv run sift keywords add "machine learning" "python tips" "side project"
 
 # Check your keywords
-sift keywords list
+uv run sift keywords list
 ```
 
 ### Tweak Settings
@@ -110,30 +110,68 @@ reports:
 
 ## API Keys (Mostly Optional)
 
-| Service | Required? | Notes |
-|---------|-----------|-------|
-| Reddit | ❌ No | Works out of the box via RSS feeds |
-| YouTube | 🟡 Optional | Needed for video/transcript fetching |
-| OpenAI | 🟡 Optional | Enables AI-powered summaries |
+Copy `.env.example` to `.env` and fill in any keys you want to use:
 
-Copy `.env.example` to `.env` and add any keys you have.
+```bash
+cp .env.example .env
+```
+
+| Service | Required? | What you get |
+|---------|-----------|--------------|
+| Reddit API | ❌ No | Works out of the box via RSS — no signup needed |
+| YouTube Data API | 🟡 Optional | Video metadata, channel scanning |
+| OpenAI | 🟡 Optional | AI-powered content summaries |
+| Anthropic | 🟡 Optional | AI-powered content summaries (Claude) |
+
+### Reddit (no key needed)
+
+SignalSift uses Reddit's public RSS feeds by default — no API key, no app registration. If you want to use the full Reddit API (higher rate limits, more fields), you can optionally set `REDDIT_CLIENT_ID` and `REDDIT_CLIENT_SECRET`.
+
+To get Reddit API credentials:
+1. Go to [reddit.com/prefs/apps](https://www.reddit.com/prefs/apps)
+2. Click **Create App** → choose **script**
+3. Set redirect URI to `http://localhost:8080`
+4. Copy the **client ID** (under the app name) and **secret**
+
+### YouTube Data API v3
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project (or select an existing one)
+3. Navigate to **APIs & Services → Library**
+4. Search for **YouTube Data API v3** and click **Enable**
+5. Go to **APIs & Services → Credentials → Create Credentials → API Key**
+6. Copy the key into `YOUTUBE_API_KEY` in your `.env`
+
+Free tier gives 10,000 units/day — more than enough for personal use.
+
+### OpenAI
+
+1. Go to [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+2. Click **Create new secret key**
+3. Copy the key into `OPENAI_API_KEY` in your `.env`
+
+### Anthropic (Claude)
+
+1. Go to [console.anthropic.com](https://console.anthropic.com/)
+2. Navigate to **API Keys → Create Key**
+3. Copy the key into `ANTHROPIC_API_KEY` in your `.env`
 
 ## Commands Cheatsheet
 
 | Command | What it does |
 |---------|-------------|
-| `sift init` | Set up database with starter sources |
-| `sift scan` | Fetch new content from all sources |
-| `sift scan --reddit` | Just scan Reddit |
-| `sift scan --youtube` | Just scan YouTube |
-| `sift scan --hackernews` | Just scan Hacker News |
-| `sift report` | Generate a markdown report |
-| `sift status` | See database stats |
-| `sift sources list` | Show tracked sources |
-| `sift keywords list` | Show tracked keywords |
-| `sift cache clear` | Clean up old data |
-| `sift migrate --check` | Check database migration status |
-| `sift migrate` | Run pending database migrations |
+| `uv run sift init` | Set up database with starter sources |
+| `uv run sift scan` | Fetch new content from all sources |
+| `uv run sift scan --reddit` | Just scan Reddit |
+| `uv run sift scan --youtube` | Just scan YouTube |
+| `uv run sift scan --hackernews` | Just scan Hacker News |
+| `uv run sift report` | Generate a markdown report |
+| `uv run sift status` | See database stats |
+| `uv run sift sources list` | Show tracked sources |
+| `uv run sift keywords list` | Show tracked keywords |
+| `uv run sift cache clear` | Clean up old data |
+| `uv run sift migrate --check` | Check database migration status |
+| `uv run sift migrate` | Run pending database migrations |
 
 ## Project Layout
 
@@ -189,13 +227,13 @@ SignalSift uses a simple migration system to manage schema changes:
 
 ```bash
 # Check migration status
-sift migrate --check
+uv run sift migrate --check
 
 # Apply pending migrations
-sift migrate
+uv run sift migrate
 
 # Migrate to specific version
-sift migrate --version 2
+uv run sift migrate --version 2
 ```
 
 Migrations are defined in `src/signalsift/database/migrations.py` and run automatically when the database is initialized.
@@ -215,7 +253,7 @@ A: The `reports/` folder. Each report is dated (e.g., `2025-01-14.md`).
 A: FAISS accelerates semantic keyword matching by 10-100x for large vocabularies. It's optional — SignalSift falls back to brute-force matching if FAISS isn't installed.
 
 **Q: How do I update the database schema?**
-A: Run `sift migrate` to apply any pending migrations. Use `sift migrate --check` to see the current status.
+A: Run `uv run sift migrate` to apply any pending migrations. Use `uv run sift migrate --check` to see the current status.
 
 ---
 

@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude-sentient.dev/schemas/profile.schema.json",
+  "title": "Profile Definition",
+  "description": "Schema for language/project profile YAML definitions used by Claude Sentient",
+  "allOf": [
+    { "$ref": "base.schema.json" }
+  ],
+  "type": "object",
+  "required": ["detection", "gates"],
+  "properties": {
+    "detection": {
+      "type": "object",
+      "properties": {
+        "files": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Files whose presence triggers this profile (e.g., pyproject.toml)"
+        },
+        "extensions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "File extensions associated with this profile (e.g., .py, .ts)"
+        },
+        "patterns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Glob patterns for file detection (e.g., **/*.py)"
+        }
+      },
+      "description": "Rules for auto-detecting this profile from project files"
+    },
+    "gates": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Quality gate definitions keyed by gate name (lint, test, build, etc.)"
+    },
+    "models": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "type": "string",
+          "description": "Default model for general tasks"
+        },
+        "planning": {
+          "type": "string",
+          "description": "Model for planning and architecture tasks"
+        },
+        "exploration": {
+          "type": "string",
+          "description": "Model for fast codebase exploration"
+        },
+        "security": {
+          "type": "string",
+          "description": "Model for security-sensitive tasks"
+        },
+        "by_phase": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Model overrides per cs-loop phase (init, understand, plan, execute, verify, commit, evaluate)"
+        }
+      },
+      "description": "Model routing configuration for cost optimization"
+    },
+    "thinking": {
+      "type": "object",
+      "properties": {
+        "max_tokens": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum tokens for extended thinking"
+        },
+        "extended_for": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Task categories that trigger extended thinking (e.g., architecture, security)"
+        }
+      },
+      "description": "Extended thinking configuration"
+    },
+    "conventions": {
+      "type": ["object", "array"],
+      "description": "Language-specific coding conventions and style guidelines"
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Environment detection rules (conda, venv, poetry, pdm, etc.)"
+    },
+    "thresholds": {
+      "type": "object",
+      "properties": {
+        "coverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Minimum test coverage percentage"
+        },
+        "complexity": {
+          "type": "number",
+          "minimum": 1,
+          "description": "Maximum cyclomatic complexity"
+        }
+      },
+      "description": "Quality thresholds for gates"
+    },
+    "patterns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "indicator": { "type": "string" }
+        }
+      },
+      "description": "Common project patterns/frameworks for this language"
+    },
+    "web_indicators": {
+      "type": "object",
+      "properties": {
+        "directories": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Directories indicating a web project"
+        },
+        "files": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Files indicating a web project"
+        },
+        "patterns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Code patterns indicating a web project"
+        },
+        "auto_rules": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Rules to auto-load for web projects"
+        }
+      },
+      "description": "Indicators for auto-loading UI/UX rules"
+    },
+    "infrastructure": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Infrastructure detection (Docker, CI, deployment platforms)"
+    },
+    "templates": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "File templates for generating new files (test, component, etc.)"
+    },
+    "ignore": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Patterns to ignore during search and analysis"
+    },
+    "plugins": {
+      "type": "object",
+      "properties": {
+        "lsp": {
+          "type": ["string", "null"],
+          "description": "Recommended LSP plugin identifier for Claude Code"
+        }
+      },
+      "description": "Recommended Claude Code plugins for this profile"
+    }
+  }
+}

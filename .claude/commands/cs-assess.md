@@ -1,7 +1,7 @@
 ---
 description: Full codebase health audit with scored assessment
 argument-hint: [directory] [--ultrathink]
-allowed-tools: Read, Glob, Grep, Task, TaskCreate, AskUserQuestion, mcp__memory__search_nodes, mcp__github__search_code
+allowed-tools: Read, Glob, Grep, Task, TaskCreate, TaskUpdate, TaskGet, TaskList, AskUserQuestion, Skill, mcp__memory__search_nodes, mcp__github__search_code
 model: opus
 ---
 
@@ -21,7 +21,36 @@ Perform a comprehensive assessment of codebase health across 6 dimensions, produ
 /cs-assess                    # Assess entire codebase
 /cs-assess src/               # Assess specific directory
 /cs-assess --ultrathink       # Extended analysis (deeper exploration)
+/cs-assess --map              # Generate codebase map
+/cs-assess --map src/         # Map specific directory
 ```
+
+## Map Mode
+
+When `--map` is specified, skip the full audit and instead produce a structured codebase inventory:
+
+### Map Steps
+
+1. **Directory tree** — Scan directories, count source files per directory (ignore node_modules, .git, dist, build, __pycache__, .venv)
+2. **Dependency graph** — Analyze imports/requires to map which modules depend on which
+3. **Entry points** — Identify main files, API routes, CLI entry points
+4. **Hotspot analysis** — Use `git log --stat --oneline -50` to find most frequently changed files
+5. **Output** — Save structured inventory to `.claude/state/codebase-map.json`
+
+### Map Output Format
+
+```json
+{
+  "generated": "ISO timestamp",
+  "scope": "directory scanned",
+  "directories": [{"path": "src/", "fileCount": 15, "language": "typescript"}],
+  "entryPoints": ["src/index.ts", "src/cli.ts"],
+  "hotspots": [{"file": "src/api.ts", "changes": 12}],
+  "dependencies": {"src/api.ts": ["src/db.ts", "src/auth.ts"]}
+}
+```
+
+Report: `[MAP] Codebase map generated: {dirs} directories, {files} files, {hotspots} hotspots`
 
 <context>
 <dimensions>
@@ -127,6 +156,9 @@ For each dimension, systematically evaluate:
 - Check: Input validation, SQL injection, XSS, CSRF protection
 - Look for: Auth middleware, secrets management, rate limiting
 - Red flags: Hardcoded secrets, eval(), unsanitized user input
+- Dependency vulns: Run profile security gate (pip-audit, npm audit, cargo audit,
+  govulncheck, bundler-audit, mvn dependency-check) — report CVE count and highest
+  severity; flag any critical/high CVEs as Immediate priority
 ```
 
 #### Performance
@@ -321,3 +353,20 @@ Prior decisions provide context for why certain patterns exist.
 3. Increase test coverage from 45% to 80%
 ```
 </examples>
+
+## After Assessment
+
+If actionable issues were found (score < 7 in any dimension), offer to fix:
+
+```
+AskUserQuestion:
+  question: "Fix the issues found in this assessment?"
+  header: "Fix"
+  options:
+    - label: "Yes, start fixing (Recommended)"
+      description: "Invoke /cs-loop to address priority findings"
+    - label: "No, just the report"
+      description: "Keep the assessment as reference"
+```
+
+If yes: `Skill(skill="cs-loop", args="fix assessment findings: {top 3 priorities}")`

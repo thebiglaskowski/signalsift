@@ -1,5 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "50"
+  },
   "permissions": {
     "allow": []
   },
@@ -9,7 +13,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/session-start.js",
+            "command": "/home/joe/.nvm/versions/node/v22.15.1/bin/node /home/joe/github/signalsift/.claude/hooks/session-start.cjs",
             "timeout": 5000
           }
         ]
@@ -20,7 +24,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/context-injector.js",
+            "command": "/home/joe/.nvm/versions/node/v22.15.1/bin/node /home/joe/github/signalsift/.claude/hooks/context-injector.cjs",
             "timeout": 3000
           }
         ]
@@ -32,7 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/bash-validator.js",
+            "command": "/home/joe/.nvm/versions/node/v22.15.1/bin/node /home/joe/github/signalsift/.claude/hooks/bash-validator.cjs",
             "timeout": 5000
           }
         ]
@@ -42,7 +46,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/file-validator.js",
+            "command": "/home/joe/.nvm/versions/node/v22.15.1/bin/node /home/joe/github/signalsift/.claude/hooks/file-validator.cjs",
             "timeout": 3000
           }
         ]
@@ -54,8 +58,20 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/post-edit.js",
-            "timeout": 3000
+            "command": "/home/joe/.nvm/versions/node/v22.15.1/bin/node /home/joe/github/signalsift/.claude/hooks/post-edit.cjs",
+            "timeout": 3000,
+            "async": true
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/joe/.nvm/versions/node/v22.15.1/bin/node /home/joe/github/signalsift/.claude/hooks/gate-monitor.cjs",
+            "timeout": 3000,
+            "async": true
           }
         ]
       }
@@ -65,8 +81,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/agent-tracker.js",
-            "timeout": 3000
+            "command": "/home/joe/.nvm/versions/node/v22.15.1/bin/node /home/joe/github/signalsift/.claude/hooks/agent-tracker.cjs",
+            "timeout": 3000,
+            "async": true
           }
         ]
       }
@@ -76,8 +93,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/agent-synthesizer.js",
-            "timeout": 3000
+            "command": "/home/joe/.nvm/versions/node/v22.15.1/bin/node /home/joe/github/signalsift/.claude/hooks/agent-synthesizer.cjs",
+            "timeout": 3000,
+            "async": true
           }
         ]
       }
@@ -87,7 +105,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/pre-compact.js",
+            "command": "/home/joe/.nvm/versions/node/v22.15.1/bin/node /home/joe/github/signalsift/.claude/hooks/pre-compact.cjs",
             "timeout": 5000
           }
         ]
@@ -98,7 +116,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/dod-verifier.js",
+            "command": "/home/joe/.nvm/versions/node/v22.15.1/bin/node /home/joe/github/signalsift/.claude/hooks/dod-verifier.cjs",
             "timeout": 5000
           }
         ]
@@ -109,7 +127,66 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/session-end.js",
+            "command": "/home/joe/.nvm/versions/node/v22.15.1/bin/node /home/joe/github/signalsift/.claude/hooks/session-end.cjs",
+            "timeout": 5000,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "WorktreeCreate": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/joe/.nvm/versions/node/v22.15.1/bin/node /home/joe/github/signalsift/.claude/hooks/worktree-lifecycle.cjs",
+            "timeout": 3000,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "WorktreeRemove": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/joe/.nvm/versions/node/v22.15.1/bin/node /home/joe/github/signalsift/.claude/hooks/worktree-lifecycle.cjs",
+            "timeout": 3000,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "ConfigChange": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/joe/.nvm/versions/node/v22.15.1/bin/node /home/joe/github/signalsift/.claude/hooks/config-watcher.cjs",
+            "timeout": 2000,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "TeammateIdle": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/joe/.nvm/versions/node/v22.15.1/bin/node /home/joe/github/signalsift/.claude/hooks/teammate-idle.cjs",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/joe/.nvm/versions/node/v22.15.1/bin/node /home/joe/github/signalsift/.claude/hooks/task-completed.cjs",
             "timeout": 5000
           }
         ]
@@ -119,13 +196,17 @@
   "sentient": {
     "models": {
       "default": "sonnet",
-      "planning": "opus",
+      "planning": "sonnet",
       "exploration": "haiku",
       "security": "opus"
     },
     "thinking": {
       "maxTokens": 16000,
-      "extendedFor": ["architecture", "security", "complex-refactoring"]
+      "extendedFor": [
+        "architecture",
+        "security",
+        "complex-refactoring"
+      ]
     },
     "session": {
       "autoName": true,
@@ -134,6 +215,15 @@
     "vision": {
       "enabled": true,
       "screenshotOnError": true
-    }
+    },
+    "mcpServers": [
+      "context7",
+      "github",
+      "memory",
+      "puppeteer"
+    ]
+  },
+  "enabledPlugins": {
+    "pyright-lsp@claude-plugins-official": true
   }
 }

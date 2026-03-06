@@ -1,0 +1,67 @@
+---
+description: Claude Sentient conventions for Cursor IDE
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# Claude Sentient — Cursor Rules
+
+This project uses Claude Sentient, an autonomous development orchestration layer.
+
+## Core Conventions
+
+### Code Quality
+- Function max 50 lines, cyclomatic complexity ≤ 10, nesting depth ≤ 3
+- No magic numbers — use named constants
+- Early returns over nested conditionals
+- No debug/console.log left in committed code
+
+### Error Handling
+- Always propagate errors explicitly (never swallow with empty catch)
+- Wrap errors with context: "doing X: {err}"
+- Map errors to appropriate output types at boundaries
+
+### Testing
+- Write tests for new functionality before considering work done
+- Table-driven / parameterized tests for multiple cases
+- Test files mirror source structure
+
+### Git
+- Conventional commits: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`
+- Quality gates before commit: lint → test → build
+- Never commit with failing tests
+
+## Project Structure
+
+```
+.claude/commands/    # /cs-* slash commands
+.claude/hooks/       # Session lifecycle hooks (.cjs)
+.claude/rules/       # Always-loaded and path-scoped rules
+agents/              # Agent role definitions (YAML + MD)
+profiles/            # Language profiles (YAML)
+schemas/             # JSON schemas for validation
+examples/            # Project CLAUDE.md templates
+```
+
+## Running Quality Gates
+
+```bash
+# Shell profile (default for this project)
+shellcheck install.sh uninstall.sh generate-checksums.sh
+
+# All tests
+node profiles/__tests__/test-profiles.js
+node .claude/hooks/__tests__/test-hooks.js
+node .claude/commands/__tests__/test-commands.js
+node agents/__tests__/test-agents.js
+node schemas/__tests__/test-schemas.js
+node integration/__tests__/test-integration.js
+```
+
+## Key Files
+
+- `CLAUDE.md` — Project overview and commands reference
+- `CHANGELOG.md` — Version history
+- `STATUS.md` — Current development state
+- `DECISIONS.md` — Architecture decision records
+- `.claude/rules/learnings.md` — Captured decisions and learnings

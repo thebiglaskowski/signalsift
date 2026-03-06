@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude-sentient.dev/schemas/gate-history.schema.json",
+  "title": "Gate History",
+  "description": "Schema for .claude/state/gate_history.json written by the gate-monitor hook",
+  "type": "object",
+  "required": ["entries"],
+  "properties": {
+    "entries": {
+      "type": "array",
+      "description": "Quality gate execution records (capped at MAX_GATE_HISTORY)",
+      "items": {
+        "type": "object",
+        "required": ["timestamp", "command", "exitCode", "duration", "passed"],
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO timestamp when the gate ran"
+          },
+          "command": {
+            "type": "string",
+            "description": "Gate command that was executed (truncated at MAX_LOGGED_COMMAND_LENGTH)"
+          },
+          "exitCode": {
+            "type": "integer",
+            "description": "Process exit code (0 = success)"
+          },
+          "duration": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Execution duration in milliseconds"
+          },
+          "passed": {
+            "type": "boolean",
+            "description": "True if exitCode === 0"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,82 @@
+{
+  "name": "claude-sentient",
+  "version": "1.5.0",
+  "description": "Autonomous development orchestration for Claude Code. Coordinates Claude Code's native capabilities into an autonomous development workflow with quality gates, agent teams, and session management.",
+  "author": "thebiglaskowski",
+  "homepage": "https://github.com/thebiglaskowski/claude-sentient",
+  "repository": "https://github.com/thebiglaskowski/claude-sentient",
+  "license": "MIT",
+  "keywords": [
+    "autonomous",
+    "orchestration",
+    "development",
+    "quality-gates",
+    "agents",
+    "tasks",
+    "loop",
+    "workflow"
+  ],
+  "engines": {
+    "claude-code": ">=1.0.0"
+  },
+  "commands": [
+    "cs-loop",
+    "cs-plan",
+    "cs-status",
+    "cs-validate",
+    "cs-learn",
+    "cs-mcp",
+    "cs-review",
+    "cs-assess",
+    "cs-init",
+    "cs-ui",
+    "cs-team",
+    "cs-docs",
+    "cs-deploy",
+    "cs-sessions",
+    "cs-multi"
+  ],
+  "agents": [
+    "security",
+    "devops",
+    "frontend",
+    "backend",
+    "tester",
+    "architect",
+    "database",
+    "docs",
+    "build-resolver"
+  ],
+  "profiles": [
+    "python",
+    "typescript",
+    "go",
+    "rust",
+    "java",
+    "c-cpp",
+    "ruby",
+    "shell",
+    "general"
+  ],
+  "hooks": [
+    "session-start",
+    "session-end",
+    "pre-commit",
+    "pre-compact",
+    "post-compact",
+    "bash-validator",
+    "file-validator",
+    "agent-tracker",
+    "gate-monitor",
+    "context-injector",
+    "task-completed",
+    "teammate-idle",
+    "redact-secrets"
+  ],
+  "install": {
+    "script": "install.sh",
+    "scriptWindows": "install.ps1",
+    "uninstall": "uninstall.sh",
+    "uninstallWindows": "uninstall.ps1"
+  }
+}

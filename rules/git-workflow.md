@@ -64,6 +64,3 @@ Fixes #456
 - [ ] Tests pass locally
 - [ ] No debug code
 - [ ] No secrets in commits
-
-## Full Reference
-`reference/v1/template/.claude/rules/git-workflow.md`

@@ -50,4 +50,3 @@ const API_KEY = "sk-1234"                          // Hardcoded secret
 
 ## Quick Reference
 - OWASP Top 10: A01-A10 (check all)
-- Full guide: `reference/v1/template/.claude/rules/security.md`

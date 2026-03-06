@@ -23,12 +23,7 @@ None.
 
 ### 1. Detect Profile
 
-Scan for project indicators:
-- `pyproject.toml` → Python
-- `package.json` / `tsconfig.json` → TypeScript
-- `go.mod` → Go
-- `*.sh` / `*.ps1` → Shell
-- Fallback → General
+Load profile from `.claude/state/session_start.json` (created by session-start hook). Use the `profile` field. If state file missing or stale, fall back to scanning for project files (see `profiles/CLAUDE.md`).
 
 ### 2. Get Task Status
 

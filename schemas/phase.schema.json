@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude-sentient.dev/schemas/phase.schema.json",
+  "title": "Phase Definition [Planned]",
+  "description": "Schema for modular loop phases (planned feature — not yet implemented; phases are currently defined inline in cs-loop.md)",
+  "allOf": [
+    { "$ref": "base.schema.json" }
+  ],
+  "type": "object",
+  "required": ["order"],
+  "properties": {
+    "order": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 20,
+      "description": "Execution order in the loop"
+    },
+    "timeout": {
+      "type": "integer",
+      "default": 300000,
+      "description": "Phase timeout in milliseconds"
+    },
+    "retryable": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this phase can be retried on failure"
+    },
+    "skipConditions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "condition": { "type": "string" },
+          "reason": { "type": "string" }
+        },
+        "required": ["condition"]
+      },
+      "description": "Conditions under which to skip this phase"
+    },
+    "depends": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Required skills or phases"
+    },
+    "subscribes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "event": { "type": "string" },
+          "handler": { "type": "string" }
+        },
+        "required": ["event"]
+      },
+      "description": "Events this phase responds to"
+    },
+    "publishes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Events this phase emits"
+    },
+    "input": {
+      "type": "object",
+      "description": "Expected state properties as input"
+    },
+    "output": {
+      "type": "object",
+      "description": "State properties this phase produces"
+    },
+    "content": {
+      "type": "string",
+      "minLength": 100,
+      "description": "Markdown content with phase logic"
+    }
+  }
+}

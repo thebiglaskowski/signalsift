@@ -2,18 +2,19 @@
 # Loaded when tsconfig.json detected
 
 name: typescript
-version: "1.1"
+version: "1.5.6"
+description: "TypeScript projects using eslint for linting, vitest for testing, and tsc for type checking"
 
 # Model routing configuration
 models:
   default: sonnet
-  planning: opus      # Use opus for architecture decisions
+  planning: sonnet    # Sonnet 4.6 handles architecture decisions well
   exploration: haiku  # Use haiku for fast codebase exploration
   security: opus      # Use opus for security audits
   by_phase:
     init: haiku
     understand: sonnet
-    plan: sonnet      # Upgrade to opus for "architecture" keywords
+    plan: sonnet      # Upgrade to opus for "security" keywords
     execute: sonnet
     verify: sonnet
     commit: haiku
@@ -66,6 +67,11 @@ gates:
     command: npx prettier --write .
     check_command: npx prettier --check .
     description: Format code
+
+  security:
+    command: npm audit --audit-level=high
+    fix_command: npm audit fix
+    description: Audit npm dependencies for known vulnerabilities
 
 # Thresholds
 thresholds:
@@ -126,6 +132,24 @@ web_indicators:
     - "@angular"
   auto_rules: [ui-ux-design]
 
+# Infrastructure detection
+infrastructure:
+  docker:
+    indicators: [Dockerfile, docker-compose.yml, docker-compose.yaml]
+    commands:
+      build: docker build -t {project_name} .
+      up: docker-compose up -d
+      test: docker-compose run --rm app npm test
+  ci:
+    indicators: [.github/workflows/, .gitlab-ci.yml, .circleci/]
+    type: auto-detect
+  vercel:
+    indicators: [vercel.json, .vercel/]
+    type: vercel
+  netlify:
+    indicators: [netlify.toml]
+    type: netlify
+
 # Conventions
 conventions:
   - Use strict TypeScript (strict: true)
@@ -173,3 +197,7 @@ ignore:
   - coverage
   - "*.d.ts"
   - .turbo
+
+# Recommended Claude Code plugins
+plugins:
+  lsp: typescript-lsp@claude-plugins-official

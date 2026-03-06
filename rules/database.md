@@ -81,6 +81,3 @@ for user in users:
 - [ ] Indexes on FKs and query patterns
 - [ ] Migrations reversible
 - [ ] No SELECT *
-
-## Full Reference
-`reference/v1/template/.claude/rules/database.md`

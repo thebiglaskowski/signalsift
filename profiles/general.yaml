@@ -2,18 +2,19 @@
 # Fallback when no specific profile matches
 
 name: general
-version: "1.1"
+version: "1.5.6"
+description: "General fallback profile with auto-detection of common linters, test runners, and build tools"
 
 # Model routing configuration
 models:
   default: sonnet
-  planning: opus      # Use opus for architecture decisions
+  planning: sonnet    # Sonnet 4.6 handles architecture decisions well
   exploration: haiku  # Use haiku for fast codebase exploration
   security: opus      # Use opus for security audits
   by_phase:
     init: haiku
     understand: sonnet
-    plan: sonnet      # Upgrade to opus for "architecture" keywords
+    plan: sonnet      # Upgrade to opus for "security" keywords
     execute: sonnet
     verify: sonnet
     commit: haiku
@@ -84,6 +85,17 @@ patterns:
   - name: ci
     indicator: .github/workflows/, .gitlab-ci.yml
 
+# Infrastructure detection
+infrastructure:
+  docker:
+    indicators: [Dockerfile, docker-compose.yml, docker-compose.yaml]
+    commands:
+      build: docker build .
+      up: docker-compose up -d
+  ci:
+    indicators: [.github/workflows/, .gitlab-ci.yml, .circleci/, Jenkinsfile]
+    type: auto-detect
+
 # Universal conventions
 conventions:
   - Follow existing code style in the project
@@ -105,3 +117,7 @@ ignore:
   - "*.log"
   - .DS_Store
   - Thumbs.db
+
+# Recommended Claude Code plugins
+plugins:
+  lsp: null

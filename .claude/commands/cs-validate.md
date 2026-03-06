@@ -58,7 +58,7 @@ Check if this is the claude-sentient repo (development) or a user project:
 
 **Commands (Required):**
 - Verify `.claude/commands/cs-*.md` files exist
-- Required: cs-loop.md, cs-plan.md, cs-status.md, cs-learn.md, cs-validate.md
+- Required: cs-loop.md, cs-plan.md, cs-status.md, cs-learn.md, cs-validate.md, cs-init.md, cs-team.md, cs-docs.md, cs-sessions.md, cs-multi.md, cs-debug.md, cs-log.md
 
 **Profiles (Required):**
 - Verify `profiles/*.yaml` files exist
@@ -73,6 +73,12 @@ Check if this is the claude-sentient repo (development) or a user project:
 - Verify `.claude/rules/` directory exists
 - Verify `.claude/rules/learnings.md` exists
 - Verify `.claude/settings.json` exists with hooks
+
+**Command Chaining Integrity:**
+- Read `.claude/commands/CLAUDE.md` skill chaining table
+- For each row where a command chains to another (e.g., cs-assess → cs-loop), verify that the source command's `allowed-tools` frontmatter includes `Skill`
+- Report mismatches as: `✗ {command} chains to {target} but missing Skill in allowed-tools`
+- Report valid chains as: `✓ Command chaining integrity verified`
 
 ### 3. Check Optional Components
 
@@ -91,6 +97,37 @@ Use this format:
 - ✓ for present/valid items
 - ○ for optional items that aren't set up (NOT an error)
 - ✗ for actually missing required items
+
+### 4.5. Check Plugins (Advisory)
+
+Run `claude plugin list` via Bash. If the `claude` CLI is unavailable, skip this section entirely with a note.
+
+**Check installed plugins:**
+- `security-guidance` → ✓ if installed, ○ if missing (recommend install)
+- Profile LSP plugin → Read profile from `.claude/state/session_start.json` (or detect from project files). Look up the matching LSP plugin from the profile's `plugins.lsp` field. Show ✓ if installed, ○ if missing
+- `pr-review-toolkit` → ○ if missing (optional, show install command)
+- `ralph-loop` → ○ if missing (optional, show install command)
+
+**Profile-to-LSP mapping:**
+
+| Profile | LSP Plugin |
+|---------|-----------|
+| python | `pyright-lsp@claude-plugins-official` |
+| typescript | `typescript-lsp@claude-plugins-official` |
+| go | `gopls-lsp@claude-plugins-official` |
+| rust | `rust-analyzer-lsp@claude-plugins-official` |
+| java | `jdtls-lsp@claude-plugins-official` |
+| cpp | `clangd-lsp@claude-plugins-official` |
+| ruby, shell, general | none |
+
+Add a PLUGINS section to the output format:
+```
+PLUGINS (advisory):
+  ✓ security-guidance
+  ✓ pyright-lsp (matches python profile)
+  ○ pr-review-toolkit      (optional: claude plugin install pr-review-toolkit@claude-plugins-official)
+  ○ ralph-loop              (optional: claude plugin install ralph-loop@claude-plugins-official)
+```
 
 ### 5. Offer Setup (only for optional items)
 
@@ -119,7 +156,7 @@ AskUserQuestion:
 REQUIRED COMPONENTS:
 
   Commands (.claude/commands/):
-    ✓ cs-loop.md, cs-plan.md, cs-status.md, cs-learn.md, cs-validate.md
+    ✓ cs-loop.md, cs-plan.md, cs-status.md, cs-learn.md, cs-validate.md, cs-init.md, cs-team.md
     + bonus: cs-assess.md, cs-mcp.md, cs-review.md, cs-ui.md
 
   Profiles (profiles/):
@@ -142,6 +179,12 @@ OPTIONAL COMPONENTS:
     These are optional. Use /cs-validate --setup to create them,
     or copy manually from templates/ when needed.
 
+PLUGINS (advisory):
+  ✓ security-guidance
+  ✓ pyright-lsp (matches python profile)
+  ○ pr-review-toolkit      (optional: claude plugin install pr-review-toolkit@claude-plugins-official)
+  ○ ralph-loop              (optional: claude plugin install ralph-loop@claude-plugins-official)
+
 === Installation Valid ===
 
 Ready to use:
@@ -159,7 +202,7 @@ REQUIRED COMPONENTS:
 
 SOURCE COMPONENTS:
   Commands (commands/):
-    ✓ 9 command source files
+    ✓ 11 command source files
     ✓ Synced with .claude/commands/
 
 GOVERNANCE:
@@ -201,7 +244,7 @@ User: /cs-validate
 
 REQUIRED COMPONENTS:
 
-  Commands: ✓ All 9 commands present
+  Commands: ✓ All 11 commands present
   Profiles: ✓ All 5 core profiles valid
   Rules:    ✓ 15 rule files present
   Memory:   ✓ learnings.md and settings.json configured

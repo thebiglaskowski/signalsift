@@ -1,10 +1,11 @@
 {
-  "id": "session-1770260958660-e82uhhfmk",
-  "timestamp": "2026-02-05T03:09:18.660Z",
-  "cwd": "C:\\scripts\\SignalSift",
+  "id": "session-1772833441579-zxq4g32or",
+  "timestamp": "2026-03-06T21:44:01.579Z",
+  "cwd": "/home/joe/github/signalsift",
+  "project_root": "/home/joe/github/signalsift",
   "gitBranch": "master",
   "gitStatus": "dirty",
   "profile": "python",
-  "platform": "win32",
-  "nodeVersion": "v24.13.0"
+  "platform": "linux",
+  "nodeVersion": "v22.15.1"
 }

@@ -69,6 +69,3 @@ expect(screen.getByText(...));  // Good
 - [ ] No hardcoded delays
 - [ ] Edge cases covered
 - [ ] Error paths tested
-
-## Full Reference
-`reference/v1/template/.claude/rules/testing.md`

@@ -1,0 +1,179 @@
+{
+  "timestamp": "2026-03-06T13:14:29.628Z",
+  "files": {
+    "session_start.json": {
+      "id": "session-1772802449239-agw5ng7io",
+      "timestamp": "2026-03-06T13:07:29.239Z",
+      "cwd": "/home/joe/github/signalsift",
+      "project_root": "/home/joe/github/signalsift",
+      "gitBranch": "master",
+      "gitStatus": "dirty",
+      "profile": "python",
+      "platform": "linux",
+      "nodeVersion": "v22.15.1"
+    },
+    "file_changes.json": [
+      {
+        "path": "/home/joe/github/signalsift/documentation/_index.md",
+        "tool": "Write",
+        "timestamp": "2026-03-06T12:50:33.181Z"
+      },
+      {
+        "path": "/home/joe/github/signalsift/documentation/01-database-config.md",
+        "tool": "Write",
+        "timestamp": "2026-03-06T12:51:04.388Z"
+      },
+      {
+        "path": "/home/joe/github/signalsift/documentation/02-sources.md",
+        "tool": "Write",
+        "timestamp": "2026-03-06T12:51:27.312Z"
+      },
+      {
+        "path": "/home/joe/github/signalsift/documentation/03-keywords.md",
+        "tool": "Write",
+        "timestamp": "2026-03-06T12:51:46.253Z"
+      },
+      {
+        "path": "/home/joe/github/signalsift/documentation/04-scan.md",
+        "tool": "Write",
+        "timestamp": "2026-03-06T12:52:14.812Z"
+      },
+      {
+        "path": "/home/joe/github/signalsift/documentation/05-scoring.md",
+        "tool": "Write",
+        "timestamp": "2026-03-06T12:52:46.075Z"
+      },
+      {
+        "path": "/home/joe/github/signalsift/documentation/06-reports.md",
+        "tool": "Write",
+        "timestamp": "2026-03-06T12:54:53.955Z"
+      },
+      {
+        "path": "/home/joe/github/signalsift/documentation/07-cache.md",
+        "tool": "Write",
+        "timestamp": "2026-03-06T12:55:15.018Z"
+      },
+      {
+        "path": "/home/joe/github/signalsift/documentation/08-competitive-intelligence.md",
+        "tool": "Write",
+        "timestamp": "2026-03-06T12:56:07.472Z"
+      },
+      {
+        "path": "/home/joe/github/signalsift/pyproject.toml",
+        "tool": "Edit",
+        "timestamp": "2026-03-06T13:13:46.898Z"
+      }
+    ],
+    "active_agents.json": {},
+    "prompts.json": [
+      {
+        "timestamp": "2026-02-04T10:34:34.075Z",
+        "topics": [],
+        "length": 0
+      },
+      {
+        "timestamp": "2026-02-04T10:36:23.370Z",
+        "topics": [],
+        "length": 0
+      },
+      {
+        "timestamp": "2026-02-04T10:37:27.037Z",
+        "topics": [],
+        "length": 0
+      },
+      {
+        "timestamp": "2026-02-04T10:46:27.496Z",
+        "topics": [],
+        "length": 0
+      },
+      {
+        "timestamp": "2026-02-04T11:36:27.330Z",
+        "topics": [],
+        "length": 0
+      },
+      {
+        "timestamp": "2026-02-04T11:38:17.757Z",
+        "topics": [],
+        "length": 0
+      },
+      {
+        "timestamp": "2026-02-04T11:38:21.277Z",
+        "topics": [],
+        "length": 0
+      },
+      {
+        "timestamp": "2026-02-04T11:38:28.634Z",
+        "topics": [],
+        "length": 0
+      },
+      {
+        "timestamp": "2026-02-04T11:38:55.759Z",
+        "topics": [],
+        "length": 0
+      },
+      {
+        "timestamp": "2026-02-04T12:12:56.236Z",
+        "topics": [],
+        "length": 0
+      },
+      {
+        "timestamp": "2026-02-04T12:13:18.678Z",
+        "topics": [],
+        "length": 0
+      },
+      {
+        "timestamp": "2026-02-04T12:13:37.803Z",
+        "topics": [],
+        "length": 0
+      },
+      {
+        "timestamp": "2026-02-04T12:13:56.046Z",
+        "topics": [],
+        "length": 0
+      },
+      {
+        "timestamp": "2026-02-05T02:40:05.093Z",
+        "topics": [],
+        "length": 0
+      },
+      {
+        "timestamp": "2026-02-05T02:41:52.921Z",
+        "topics": [],
+        "length": 0
+      },
+      {
+        "timestamp": "2026-03-06T12:47:21.307Z",
+        "topics": [
+          "documentation"
+        ],
+        "length": 9
+      },
+      {
+        "timestamp": "2026-03-06T12:47:35.829Z",
+        "topics": [
+          "documentation"
+        ],
+        "length": 9
+      },
+      {
+        "timestamp": "2026-03-06T12:48:47.363Z",
+        "topics": [
+          "documentation"
+        ],
+        "length": 9
+      },
+      {
+        "timestamp": "2026-03-06T13:06:00.109Z",
+        "topics": [],
+        "length": 11
+      },
+      {
+        "timestamp": "2026-03-06T13:10:30.894Z",
+        "topics": [
+          "errorHandling"
+        ],
+        "length": 61
+      }
+    ]
+  }
+}

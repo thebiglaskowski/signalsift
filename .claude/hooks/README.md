@@ -6,16 +6,18 @@ This directory contains hook scripts that integrate with Claude Code's hook syst
 
 | Hook | Trigger | Purpose |
 |------|---------|---------|
-| `session-start.js` | SessionStart | Initialize session, detect profile |
-| `session-end.js` | SessionEnd | Archive session, cleanup |
-| `context-injector.js` | UserPromptSubmit | Detect topics, inject context |
-| `bash-validator.js` | PreToolUse (Bash) | Block dangerous commands |
-| `file-validator.js` | PreToolUse (Write/Edit) | Validate file paths |
-| `post-edit.js` | PostToolUse (Write/Edit) | Track changes, suggest lint |
-| `agent-tracker.js` | SubagentStart | Track agent spawning |
-| `agent-synthesizer.js` | SubagentStop | Synthesize agent results |
-| `pre-compact.js` | PreCompact | Backup state before compaction |
-| `dod-verifier.js` | Stop | Verify Definition of Done |
+| `session-start.cjs` | SessionStart | Initialize session, detect profile |
+| `session-end.cjs` | SessionEnd | Archive session, cleanup |
+| `context-injector.cjs` | UserPromptSubmit | Detect topics, inject context |
+| `bash-validator.cjs` | PreToolUse (Bash) | Block dangerous commands |
+| `file-validator.cjs` | PreToolUse (Write/Edit) | Validate file paths |
+| `post-edit.cjs` | PostToolUse (Write/Edit) | Track changes, suggest lint |
+| `agent-tracker.cjs` | SubagentStart | Track agent spawning |
+| `agent-synthesizer.cjs` | SubagentStop | Synthesize agent results |
+| `pre-compact.cjs` | PreCompact | Backup state before compaction |
+| `dod-verifier.cjs` | Stop | Verify Definition of Done |
+| `teammate-idle.cjs` | TeammateIdle | Quality check before teammate goes idle |
+| `task-completed.cjs` | TaskCompleted | Validate deliverables, file ownership |
 
 ## State Files
 
@@ -28,8 +30,8 @@ Hooks read/write to `.claude/state/`:
 | `active_agents.json` | Currently running subagents |
 | `agent_history.json` | Completed subagent history |
 | `prompts.json` | Recent prompt metadata |
-| `cost_tracking.json` | Cost per phase/agent |
 | `last_verification.json` | Last DoD verification |
+| `team-state.json` | Agent Teams: teammate tracking, file ownership |
 
 ## Security
 
@@ -53,10 +55,10 @@ Hooks read/write to `.claude/state/`:
 To add custom validation, edit the respective hook file:
 
 ```javascript
-// In bash-validator.js, add to DANGEROUS_PATTERNS:
+// In bash-validator.cjs, add to DANGEROUS_PATTERNS:
 { pattern: /your-pattern/, reason: 'Your reason' }
 
-// In file-validator.js, add to PROTECTED_PATHS:
+// In file-validator.cjs, add to PROTECTED_PATHS:
 /your-path-pattern/
 ```
 
@@ -110,7 +112,7 @@ Hooks are configured in `.claude/settings.json`:
         "matcher": "Bash",
         "hooks": [{
           "type": "command",
-          "command": "node .claude/hooks/bash-validator.js",
+          "command": "node .claude/hooks/bash-validator.cjs",
           "timeout": 5000
         }]
       }

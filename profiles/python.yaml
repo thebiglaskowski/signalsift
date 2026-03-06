@@ -2,18 +2,19 @@
 # Loaded when pyproject.toml or requirements.txt detected
 
 name: python
-version: "1.2"
+version: "1.5.6"
+description: "Python projects using ruff for linting, pytest for testing, and pyright for type checking"
 
 # Model routing configuration
 models:
   default: sonnet
-  planning: opus      # Use opus for architecture decisions
+  planning: sonnet    # Sonnet 4.6 handles architecture decisions well
   exploration: haiku  # Use haiku for fast codebase exploration
   security: opus      # Use opus for security audits
   by_phase:
     init: haiku
     understand: sonnet
-    plan: sonnet      # Upgrade to opus for "architecture" keywords
+    plan: sonnet      # Upgrade to opus for "security" keywords
     execute: sonnet
     verify: sonnet
     commit: haiku
@@ -116,6 +117,13 @@ gates:
       - nbqa
       - nbval
 
+  security:
+    command: pip-audit
+    alternative: safety check
+    description: Audit Python dependencies for known vulnerabilities
+    requires:
+      - pip-audit
+
 # Thresholds
 thresholds:
   coverage: 80
@@ -167,6 +175,21 @@ web_indicators:
     - "from flask import"
   auto_rules: [ui-ux-design]
 
+# Infrastructure detection
+infrastructure:
+  docker:
+    indicators: [Dockerfile, docker-compose.yml, docker-compose.yaml]
+    commands:
+      build: docker build -t {project_name} .
+      up: docker-compose up -d
+      test: docker-compose run --rm app pytest
+  ci:
+    indicators: [.github/workflows/, .gitlab-ci.yml, .circleci/]
+    type: auto-detect
+  virtualenv:
+    indicators: [.venv/, venv/, .virtualenv/]
+    type: python-venv
+
 # Conventions
 conventions:
   - Use type hints for function signatures
@@ -201,3 +224,7 @@ ignore:
   - "*.egg-info"
   - dist
   - build
+
+# Recommended Claude Code plugins
+plugins:
+  lsp: pyright-lsp@claude-plugins-official
