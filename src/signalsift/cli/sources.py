@@ -126,10 +126,7 @@ def add_source_cmd(source_type: str, source_id: str, name: str | None, tier: int
 
     # Set default display name
     if name is None:
-        if source_type == "reddit":
-            name = f"r/{source_id}"
-        else:
-            name = source_id
+        name = f"r/{source_id}" if source_type == "reddit" else source_id
 
     source = Source(
         source_type=source_type,
@@ -167,10 +164,9 @@ def disable_source(source_type: str, source_id: str) -> None:
 @click.option("--force", is_flag=True, help="Skip confirmation")
 def remove_source_cmd(source_type: str, source_id: str, force: bool) -> None:
     """Remove a source."""
-    if not force:
-        if not click.confirm(f"Remove {source_type} source '{source_id}'?"):
-            console.print("[yellow]Cancelled.[/yellow]")
-            return
+    if not force and not click.confirm(f"Remove {source_type} source '{source_id}'?"):
+        console.print("[yellow]Cancelled.[/yellow]")
+        return
 
     if remove_source(source_type, source_id):
         console.print(f"[green]✓[/green] Removed {source_type} source: {source_id}")

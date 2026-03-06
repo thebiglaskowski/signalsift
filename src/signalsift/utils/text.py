@@ -125,11 +125,7 @@ def contains_metrics(text: str) -> bool:
     ]
 
     text_lower = text.lower()
-    for pattern in patterns:
-        if re.search(pattern, text_lower, re.IGNORECASE):
-            return True
-
-    return False
+    return any(re.search(pattern, text_lower, re.IGNORECASE) for pattern in patterns)
 
 
 def normalize_keyword(keyword: str) -> str:

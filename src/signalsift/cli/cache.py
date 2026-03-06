@@ -64,12 +64,11 @@ def cache_stats() -> None:
 @click.option("--force", is_flag=True, help="Skip confirmation")
 def prune_cache(older_than: int, force: bool) -> None:
     """Delete old processed content from cache."""
-    if not force:
-        if not click.confirm(
-            f"Delete all processed content older than {older_than} days?"
-        ):
-            console.print("[yellow]Cancelled.[/yellow]")
-            return
+    if not force and not click.confirm(
+        f"Delete all processed content older than {older_than} days?"
+    ):
+        console.print("[yellow]Cancelled.[/yellow]")
+        return
 
     reddit_deleted, youtube_deleted = prune_old_content(older_than)
 
@@ -83,10 +82,9 @@ def prune_cache(older_than: int, force: bool) -> None:
 @click.option("--force", is_flag=True, help="Skip confirmation")
 def reset_processed(force: bool) -> None:
     """Reset processed flags on all content (allows reuse in new reports)."""
-    if not force:
-        if not click.confirm("Reset processed flags on all content?"):
-            console.print("[yellow]Cancelled.[/yellow]")
-            return
+    if not force and not click.confirm("Reset processed flags on all content?"):
+        console.print("[yellow]Cancelled.[/yellow]")
+        return
 
     count = reset_processed_flags()
     console.print(f"[green]✓[/green] Reset processed flag on {count} items")

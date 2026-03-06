@@ -101,7 +101,7 @@ class VocabVectorIndex:
                 continue
 
             words.append(word)
-            vectors.append(lexeme.vector)
+            vectors.append(np.asarray(lexeme.vector, dtype=np.float32))
 
         if not vectors:
             logger.warning("No vectors found in vocabulary")
@@ -111,9 +111,7 @@ class VocabVectorIndex:
         vectors_array = np.array(vectors, dtype=np.float32)
         self._dimension = vectors_array.shape[1]
 
-        logger.info(
-            f"Building index with {len(words)} words, {self._dimension} dimensions"
-        )
+        logger.info(f"Building index with {len(words)} words, {self._dimension} dimensions")
 
         # Normalize vectors for cosine similarity
         faiss.normalize_L2(vectors_array)
@@ -176,7 +174,7 @@ class VocabVectorIndex:
         distances, indices = self._index.search(query, k * 2)
 
         results: list[tuple[str, float]] = []
-        for dist, idx in zip(distances[0], indices[0]):
+        for dist, idx in zip(distances[0], indices[0], strict=False):
             if idx < 0:  # FAISS returns -1 for empty slots
                 continue
             if dist < threshold:

@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -164,9 +164,7 @@ class TestReportGeneratorInit:
 class TestBuildMetadataContext:
     """Tests for _build_metadata_context method."""
 
-    def test_metadata_with_threads_and_videos(
-        self, generator, sample_threads, sample_videos
-    ):
+    def test_metadata_with_threads_and_videos(self, generator, sample_threads, sample_videos):
         """Test metadata generation with both threads and videos."""
         now = datetime(2024, 1, 5, 12, 0, 0)
 
@@ -198,10 +196,12 @@ class TestBuildMetadataContext:
         """Test that top themes are calculated correctly."""
         now = datetime.now()
 
-        with patch("signalsift.reports.generator.get_cache_stats", return_value={}):
-            with patch("signalsift.reports.generator.get_category_name") as mock_get_cat:
-                mock_get_cat.side_effect = lambda x: x.replace("_", " ").title()
-                result = generator._build_metadata_context(sample_threads, sample_videos, now)
+        with (
+            patch("signalsift.reports.generator.get_cache_stats", return_value={}),
+            patch("signalsift.reports.generator.get_category_name") as mock_get_cat,
+        ):
+            mock_get_cat.side_effect = lambda x: x.replace("_", " ").title()
+            result = generator._build_metadata_context(sample_threads, sample_videos, now)
 
         assert "top_themes" in result
         assert len(result["top_themes"]) <= 5
@@ -224,7 +224,9 @@ class TestBuildCategorizedContent:
 
     def test_categorizes_by_pain_points(self, generator, sample_threads):
         """Test that pain points are categorized correctly."""
-        result = generator._build_categorized_content(sample_threads, max_per_section=10, excerpt_length=200)
+        result = generator._build_categorized_content(
+            sample_threads, max_per_section=10, excerpt_length=200
+        )
 
         assert "pain_points" in result
         assert len(result["pain_points"]) == 1
@@ -232,7 +234,9 @@ class TestBuildCategorizedContent:
 
     def test_categorizes_by_success_stories(self, generator, sample_threads):
         """Test that success stories are categorized correctly."""
-        result = generator._build_categorized_content(sample_threads, max_per_section=10, excerpt_length=200)
+        result = generator._build_categorized_content(
+            sample_threads, max_per_section=10, excerpt_length=200
+        )
 
         assert "success_stories" in result
         assert len(result["success_stories"]) == 1
@@ -240,7 +244,9 @@ class TestBuildCategorizedContent:
 
     def test_categorizes_by_tool_mentions(self, generator, sample_threads):
         """Test that tool comparisons are categorized correctly."""
-        result = generator._build_categorized_content(sample_threads, max_per_section=10, excerpt_length=200)
+        result = generator._build_categorized_content(
+            sample_threads, max_per_section=10, excerpt_length=200
+        )
 
         assert "tool_mentions" in result
         assert len(result["tool_mentions"]) == 1
@@ -261,7 +267,9 @@ class TestBuildCategorizedContent:
             for i in range(15)
         ]
 
-        result = generator._build_categorized_content(threads, max_per_section=5, excerpt_length=200)
+        result = generator._build_categorized_content(
+            threads, max_per_section=5, excerpt_length=200
+        )
 
         assert len(result["pain_points"]) == 5
 
@@ -300,14 +308,18 @@ class TestBuildCategorizedContent:
             ),
         ]
 
-        result = generator._build_categorized_content(threads, max_per_section=10, excerpt_length=200)
+        result = generator._build_categorized_content(
+            threads, max_per_section=10, excerpt_length=200
+        )
 
         scores = [item["relevance_score"] for item in result["pain_points"]]
         assert scores == [95, 75, 60]
 
     def test_all_category_mappings_present(self, generator, sample_threads):
         """Test that all category mappings are in the result."""
-        result = generator._build_categorized_content(sample_threads, max_per_section=10, excerpt_length=200)
+        result = generator._build_categorized_content(
+            sample_threads, max_per_section=10, excerpt_length=200
+        )
 
         expected_keys = [
             "pain_points",
@@ -347,7 +359,9 @@ class TestBuildRisingContent:
             )
         ]
 
-        with patch("signalsift.reports.generator.calculate_engagement_velocity", return_value=150.0):
+        with patch(
+            "signalsift.reports.generator.calculate_engagement_velocity", return_value=150.0
+        ):
             result = generator._build_rising_content(threads, excerpt_length=200)
 
         assert "rising_content" in result
@@ -433,7 +447,10 @@ class TestBuildRisingContent:
                 return 100.0
             return 15.0
 
-        with patch("signalsift.reports.generator.calculate_engagement_velocity", side_effect=velocity_side_effect):
+        with patch(
+            "signalsift.reports.generator.calculate_engagement_velocity",
+            side_effect=velocity_side_effect,
+        ):
             result = generator._build_rising_content(threads, excerpt_length=200)
 
         assert len(result["rising_content"]) == 2
@@ -475,7 +492,9 @@ class TestBuildTrendData:
 
     def test_handles_trends_import_error(self, generator):
         """Test graceful handling when trends module unavailable."""
-        with patch("signalsift.processing.trends.analyze_trends", side_effect=ImportError("No module")):
+        with patch(
+            "signalsift.processing.trends.analyze_trends", side_effect=ImportError("No module")
+        ):
             result = generator._build_trend_data(include_trends=True)
 
         assert result["trends"] == []
@@ -483,7 +502,9 @@ class TestBuildTrendData:
 
     def test_handles_trends_exception(self, generator):
         """Test graceful handling of analysis exceptions."""
-        with patch("signalsift.processing.trends.analyze_trends", side_effect=Exception("Analysis failed")):
+        with patch(
+            "signalsift.processing.trends.analyze_trends", side_effect=Exception("Analysis failed")
+        ):
             result = generator._build_trend_data(include_trends=True)
 
         assert result["trends"] == []
@@ -530,7 +551,9 @@ class TestBuildCompetitiveData:
         mock_intel.identify_feature_gaps.return_value = []
         mock_intel.get_market_movers.return_value = []
 
-        with patch("signalsift.processing.competitive.get_competitive_intel", return_value=mock_intel):
+        with patch(
+            "signalsift.processing.competitive.get_competitive_intel", return_value=mock_intel
+        ):
             result = generator._build_competitive_data(include_competitive=True)
 
         assert result["competitive_intel"] is not None
@@ -556,11 +579,17 @@ class TestBuildCompetitiveData:
         mock_tool_neutral.avg_sentiment = 0.05
 
         mock_intel = MagicMock()
-        mock_intel.get_tool_stats.return_value = [mock_tool_positive, mock_tool_negative, mock_tool_neutral]
+        mock_intel.get_tool_stats.return_value = [
+            mock_tool_positive,
+            mock_tool_negative,
+            mock_tool_neutral,
+        ]
         mock_intel.identify_feature_gaps.return_value = []
         mock_intel.get_market_movers.return_value = []
 
-        with patch("signalsift.processing.competitive.get_competitive_intel", return_value=mock_intel):
+        with patch(
+            "signalsift.processing.competitive.get_competitive_intel", return_value=mock_intel
+        ):
             result = generator._build_competitive_data(include_competitive=True)
 
         assert result["top_tools"][0]["sentiment"] == "positive"
@@ -569,7 +598,10 @@ class TestBuildCompetitiveData:
 
     def test_handles_competitive_import_error(self, generator):
         """Test graceful handling when competitive module unavailable."""
-        with patch("signalsift.processing.competitive.get_competitive_intel", side_effect=ImportError("No module")):
+        with patch(
+            "signalsift.processing.competitive.get_competitive_intel",
+            side_effect=ImportError("No module"),
+        ):
             result = generator._build_competitive_data(include_competitive=True)
 
         assert result["competitive_intel"] is None
@@ -588,7 +620,9 @@ class TestBuildCompetitiveData:
         mock_intel.identify_feature_gaps.return_value = [mock_gap]
         mock_intel.get_market_movers.return_value = []
 
-        with patch("signalsift.processing.competitive.get_competitive_intel", return_value=mock_intel):
+        with patch(
+            "signalsift.processing.competitive.get_competitive_intel", return_value=mock_intel
+        ):
             result = generator._build_competitive_data(include_competitive=True)
 
         assert len(result["feature_gaps"]) == 1
@@ -849,73 +883,111 @@ class TestGenerate:
 
     def test_raises_error_with_no_content(self, generator):
         """Test that ReportError is raised when no content available."""
-        with patch("signalsift.reports.generator.get_unprocessed_content", return_value=([], [])):
-            with pytest.raises(ReportError, match="No content to include in report"):
-                generator.generate()
+        with (
+            patch("signalsift.reports.generator.get_unprocessed_content", return_value=([], [])),
+            pytest.raises(ReportError, match="No content to include in report"),
+        ):
+            generator.generate()
 
     def test_uses_unprocessed_content_by_default(self, generator, sample_threads, sample_videos):
         """Test that unprocessed content is fetched by default."""
-        with patch("signalsift.reports.generator.get_unprocessed_content", return_value=(sample_threads, sample_videos)):
-            with patch("signalsift.reports.generator.insert_report"):
-                with patch("signalsift.reports.generator.mark_content_processed"):
-                    mock_template = MagicMock()
-                    mock_template.render.return_value = "# Report content"
+        mock_template = MagicMock()
+        mock_template.render.return_value = "# Report content"
 
-                    with patch.object(type(generator), "env", property(lambda self: MagicMock(get_template=lambda x: mock_template))):
-                        output_path = Path("/tmp/test_report.md")
-                        with patch.object(Path, "write_text"):
-                            with patch.object(Path, "mkdir"):
-                                result = generator.generate(output_path=output_path)
+        with (
+            patch(
+                "signalsift.reports.generator.get_unprocessed_content",
+                return_value=(sample_threads, sample_videos),
+            ),
+            patch("signalsift.reports.generator.insert_report"),
+            patch("signalsift.reports.generator.mark_content_processed"),
+            patch.object(
+                type(generator),
+                "env",
+                property(lambda self: MagicMock(get_template=lambda x: mock_template)),
+            ),
+            patch.object(Path, "write_text"),
+            patch.object(Path, "mkdir"),
+        ):
+            output_path = Path("/tmp/test_report.md")
+            result = generator.generate(output_path=output_path)
 
         assert result == output_path
 
     def test_marks_content_as_processed(self, generator, sample_threads, sample_videos):
         """Test that content is marked as processed when preview=False."""
-        with patch("signalsift.reports.generator.get_unprocessed_content", return_value=(sample_threads, sample_videos)):
-            with patch("signalsift.reports.generator.insert_report") as mock_insert:
-                with patch("signalsift.reports.generator.mark_content_processed") as mock_mark:
-                    mock_template = MagicMock()
-                    mock_template.render.return_value = "# Report"
+        mock_template = MagicMock()
+        mock_template.render.return_value = "# Report"
 
-                    with patch.object(type(generator), "env", property(lambda self: MagicMock(get_template=lambda x: mock_template))):
-                        output_path = Path("/tmp/test.md")
-                        with patch.object(Path, "write_text"):
-                            with patch.object(Path, "mkdir"):
-                                generator.generate(output_path=output_path, preview=False)
+        with (
+            patch(
+                "signalsift.reports.generator.get_unprocessed_content",
+                return_value=(sample_threads, sample_videos),
+            ),
+            patch("signalsift.reports.generator.insert_report") as mock_insert,
+            patch("signalsift.reports.generator.mark_content_processed") as mock_mark,
+            patch.object(
+                type(generator),
+                "env",
+                property(lambda self: MagicMock(get_template=lambda x: mock_template)),
+            ),
+            patch.object(Path, "write_text"),
+            patch.object(Path, "mkdir"),
+        ):
+            output_path = Path("/tmp/test.md")
+            generator.generate(output_path=output_path, preview=False)
 
         mock_insert.assert_called_once()
         mock_mark.assert_called_once()
 
     def test_does_not_mark_content_in_preview_mode(self, generator, sample_threads, sample_videos):
         """Test that content is not marked as processed when preview=True."""
-        with patch("signalsift.reports.generator.get_unprocessed_content", return_value=(sample_threads, sample_videos)):
-            with patch("signalsift.reports.generator.insert_report") as mock_insert:
-                with patch("signalsift.reports.generator.mark_content_processed") as mock_mark:
-                    mock_template = MagicMock()
-                    mock_template.render.return_value = "# Report"
+        mock_template = MagicMock()
+        mock_template.render.return_value = "# Report"
 
-                    with patch.object(type(generator), "env", property(lambda self: MagicMock(get_template=lambda x: mock_template))):
-                        output_path = Path("/tmp/test.md")
-                        with patch.object(Path, "write_text"):
-                            with patch.object(Path, "mkdir"):
-                                generator.generate(output_path=output_path, preview=True)
+        with (
+            patch(
+                "signalsift.reports.generator.get_unprocessed_content",
+                return_value=(sample_threads, sample_videos),
+            ),
+            patch("signalsift.reports.generator.insert_report") as mock_insert,
+            patch("signalsift.reports.generator.mark_content_processed") as mock_mark,
+            patch.object(
+                type(generator),
+                "env",
+                property(lambda self: MagicMock(get_template=lambda x: mock_template)),
+            ),
+            patch.object(Path, "write_text"),
+            patch.object(Path, "mkdir"),
+        ):
+            output_path = Path("/tmp/test.md")
+            generator.generate(output_path=output_path, preview=True)
 
         mock_insert.assert_not_called()
         mock_mark.assert_not_called()
 
     def test_respects_min_score_filter(self, generator, sample_threads, sample_videos):
         """Test that min_score filter is applied."""
-        with patch("signalsift.reports.generator.get_unprocessed_content", return_value=(sample_threads, sample_videos)) as mock_get:
-            with patch("signalsift.reports.generator.insert_report"):
-                with patch("signalsift.reports.generator.mark_content_processed"):
-                    mock_template = MagicMock()
-                    mock_template.render.return_value = "# Report"
+        mock_template = MagicMock()
+        mock_template.render.return_value = "# Report"
 
-                    with patch.object(type(generator), "env", property(lambda self: MagicMock(get_template=lambda x: mock_template))):
-                        output_path = Path("/tmp/test.md")
-                        with patch.object(Path, "write_text"):
-                            with patch.object(Path, "mkdir"):
-                                generator.generate(output_path=output_path, min_score=80.0)
+        with (
+            patch(
+                "signalsift.reports.generator.get_unprocessed_content",
+                return_value=(sample_threads, sample_videos),
+            ) as mock_get,
+            patch("signalsift.reports.generator.insert_report"),
+            patch("signalsift.reports.generator.mark_content_processed"),
+            patch.object(
+                type(generator),
+                "env",
+                property(lambda self: MagicMock(get_template=lambda x: mock_template)),
+            ),
+            patch.object(Path, "write_text"),
+            patch.object(Path, "mkdir"),
+        ):
+            output_path = Path("/tmp/test.md")
+            generator.generate(output_path=output_path, min_score=80.0)
 
         # Verify min_score was passed to get_unprocessed_content
         call_kwargs = mock_get.call_args[1]
@@ -923,32 +995,47 @@ class TestGenerate:
 
     def test_uses_processed_content_when_requested(self, generator, sample_threads, sample_videos):
         """Test that processed content can be included."""
-        with patch("signalsift.database.queries.get_reddit_threads", return_value=sample_threads):
-            with patch("signalsift.database.queries.get_youtube_videos", return_value=sample_videos):
-                with patch("signalsift.reports.generator.insert_report"):
-                    with patch("signalsift.reports.generator.mark_content_processed"):
-                        mock_template = MagicMock()
-                        mock_template.render.return_value = "# Report"
+        mock_template = MagicMock()
+        mock_template.render.return_value = "# Report"
 
-                        with patch.object(type(generator), "env", property(lambda self: MagicMock(get_template=lambda x: mock_template))):
-                            output_path = Path("/tmp/test.md")
-                            with patch.object(Path, "write_text"):
-                                with patch.object(Path, "mkdir"):
-                                    generator.generate(output_path=output_path, include_processed=True)
+        with (
+            patch("signalsift.database.queries.get_reddit_threads", return_value=sample_threads),
+            patch("signalsift.database.queries.get_youtube_videos", return_value=sample_videos),
+            patch("signalsift.reports.generator.insert_report"),
+            patch("signalsift.reports.generator.mark_content_processed"),
+            patch.object(
+                type(generator),
+                "env",
+                property(lambda self: MagicMock(get_template=lambda x: mock_template)),
+            ),
+            patch.object(Path, "write_text"),
+            patch.object(Path, "mkdir"),
+        ):
+            output_path = Path("/tmp/test.md")
+            generator.generate(output_path=output_path, include_processed=True)
 
     def test_creates_output_directory(self, generator, sample_threads, sample_videos):
         """Test that output directory is created if it doesn't exist."""
-        with patch("signalsift.reports.generator.get_unprocessed_content", return_value=(sample_threads, sample_videos)):
-            with patch("signalsift.reports.generator.insert_report"):
-                with patch("signalsift.reports.generator.mark_content_processed"):
-                    mock_template = MagicMock()
-                    mock_template.render.return_value = "# Report"
+        mock_template = MagicMock()
+        mock_template.render.return_value = "# Report"
 
-                    with patch.object(type(generator), "env", property(lambda self: MagicMock(get_template=lambda x: mock_template))):
-                        output_path = Path("/tmp/new_dir/test.md")
-                        with patch.object(Path, "write_text"):
-                            with patch.object(Path, "mkdir") as mock_mkdir:
-                                generator.generate(output_path=output_path)
+        with (
+            patch(
+                "signalsift.reports.generator.get_unprocessed_content",
+                return_value=(sample_threads, sample_videos),
+            ),
+            patch("signalsift.reports.generator.insert_report"),
+            patch("signalsift.reports.generator.mark_content_processed"),
+            patch.object(
+                type(generator),
+                "env",
+                property(lambda self: MagicMock(get_template=lambda x: mock_template)),
+            ),
+            patch.object(Path, "write_text"),
+            patch.object(Path, "mkdir") as mock_mkdir,
+        ):
+            output_path = Path("/tmp/new_dir/test.md")
+            generator.generate(output_path=output_path)
 
         # Verify mkdir was called with the correct arguments (may be called multiple times)
         assert mock_mkdir.call_count >= 1
@@ -960,10 +1047,12 @@ class TestBuildContext:
 
     def test_builds_complete_context(self, generator, sample_threads, sample_videos):
         """Test that complete context is built."""
-        with patch("signalsift.reports.generator.get_cache_stats", return_value={"total": 100}):
-            with patch("signalsift.reports.generator.get_category_name", side_effect=lambda x: x):
-                with patch("signalsift.reports.generator.calculate_engagement_velocity", return_value=5.0):
-                    context = generator._build_context(sample_threads, sample_videos)
+        with (
+            patch("signalsift.reports.generator.get_cache_stats", return_value={"total": 100}),
+            patch("signalsift.reports.generator.get_category_name", side_effect=lambda x: x),
+            patch("signalsift.reports.generator.calculate_engagement_velocity", return_value=5.0),
+        ):
+            context = generator._build_context(sample_threads, sample_videos)
 
         # Verify all major sections are present
         assert "generated_at" in context
@@ -976,24 +1065,26 @@ class TestBuildContext:
 
     def test_excludes_trends_when_disabled(self, generator, sample_threads, sample_videos):
         """Test that trends are excluded when disabled."""
-        with patch("signalsift.reports.generator.get_cache_stats", return_value={}):
-            with patch("signalsift.reports.generator.get_category_name", side_effect=lambda x: x):
-                with patch("signalsift.reports.generator.calculate_engagement_velocity", return_value=0):
-                    context = generator._build_context(
-                        sample_threads, sample_videos, include_trends=False
-                    )
+        with (
+            patch("signalsift.reports.generator.get_cache_stats", return_value={}),
+            patch("signalsift.reports.generator.get_category_name", side_effect=lambda x: x),
+            patch("signalsift.reports.generator.calculate_engagement_velocity", return_value=0),
+        ):
+            context = generator._build_context(sample_threads, sample_videos, include_trends=False)
 
         assert context["trends"] == []
         assert context["emerging_trends"] == []
 
     def test_excludes_competitive_when_disabled(self, generator, sample_threads, sample_videos):
         """Test that competitive data is excluded when disabled."""
-        with patch("signalsift.reports.generator.get_cache_stats", return_value={}):
-            with patch("signalsift.reports.generator.get_category_name", side_effect=lambda x: x):
-                with patch("signalsift.reports.generator.calculate_engagement_velocity", return_value=0):
-                    context = generator._build_context(
-                        sample_threads, sample_videos, include_competitive=False
-                    )
+        with (
+            patch("signalsift.reports.generator.get_cache_stats", return_value={}),
+            patch("signalsift.reports.generator.get_category_name", side_effect=lambda x: x),
+            patch("signalsift.reports.generator.calculate_engagement_velocity", return_value=0),
+        ):
+            context = generator._build_context(
+                sample_threads, sample_videos, include_competitive=False
+            )
 
         assert context["competitive_intel"] is None
         assert context["top_tools"] == []
@@ -1060,19 +1151,27 @@ class TestConvenienceFunction:
             )
         ]
 
-        with patch("signalsift.reports.generator.get_settings", return_value=mock_settings):
-            with patch("signalsift.reports.generator.get_unprocessed_content", return_value=(threads, [])):
-                with patch("signalsift.reports.generator.insert_report"):
-                    with patch("signalsift.reports.generator.mark_content_processed"):
-                        mock_template = MagicMock()
-                        mock_template.render.return_value = "# Report"
+        mock_template = MagicMock()
+        mock_template.render.return_value = "# Report"
 
-                        from signalsift.reports.generator import ReportGenerator, generate_report
+        from signalsift.reports.generator import ReportGenerator, generate_report
 
-                        with patch.object(type(ReportGenerator()), "env", property(lambda self: MagicMock(get_template=lambda x: mock_template))):
-                            output_path = Path("/tmp/test.md")
-                            with patch.object(Path, "write_text"):
-                                with patch.object(Path, "mkdir"):
-                                    result = generate_report(output_path=output_path)
+        with (
+            patch("signalsift.reports.generator.get_settings", return_value=mock_settings),
+            patch(
+                "signalsift.reports.generator.get_unprocessed_content", return_value=(threads, [])
+            ),
+            patch("signalsift.reports.generator.insert_report"),
+            patch("signalsift.reports.generator.mark_content_processed"),
+            patch.object(
+                type(ReportGenerator()),
+                "env",
+                property(lambda self: MagicMock(get_template=lambda x: mock_template)),
+            ),
+            patch.object(Path, "write_text"),
+            patch.object(Path, "mkdir"),
+        ):
+            output_path = Path("/tmp/test.md")
+            result = generate_report(output_path=output_path)
 
         assert result == output_path

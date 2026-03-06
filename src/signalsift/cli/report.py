@@ -76,9 +76,7 @@ def report(
         )
 
         if preview:
-            console.print(
-                f"[green]✓[/green] Preview report generated: [bold]{output_path}[/bold]"
-            )
+            console.print(f"[green]✓[/green] Preview report generated: [bold]{output_path}[/bold]")
             console.print("[dim]Content not marked as processed (preview mode)[/dim]")
         else:
             console.print(f"[green]✓[/green] Report generated: [bold]{output_path}[/bold]")
@@ -90,9 +88,9 @@ def report(
     except ReportError as e:
         console.print(f"[red]✗[/red] Report generation failed: {e}")
         logger.error(f"Report generation failed: {e}")
-        raise click.Abort()
+        raise click.Abort() from e
 
     except Exception as e:
         console.print(f"[red]✗[/red] Unexpected error: {e}")
         logger.exception("Report generation failed with unexpected error")
-        raise click.Abort()
+        raise click.Abort() from e

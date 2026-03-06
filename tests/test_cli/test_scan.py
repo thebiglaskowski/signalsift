@@ -1,7 +1,6 @@
 """Tests for scan CLI command."""
 
-from datetime import datetime, timedelta
-from pathlib import Path
+from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -256,7 +255,7 @@ class TestScanProcessing:
             patch("signalsift.cli.main.setup_logging"),
             patch("signalsift.cli.scan.get_settings", return_value=mock_settings),
             patch("signalsift.cli.scan.RedditRSSSource") as mock_reddit,
-            patch("signalsift.cli.scan.insert_reddit_threads_batch") as mock_insert,
+            patch("signalsift.cli.scan.insert_reddit_threads_batch"),
             patch("signalsift.cli.scan.process_reddit_thread") as mock_process,
         ):
             mock_source = MagicMock()

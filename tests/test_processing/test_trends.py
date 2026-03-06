@@ -1,10 +1,9 @@
 """Tests for trend detection module."""
 
 import sqlite3
-import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -109,7 +108,7 @@ class TestTrendDetectorInit:
     def test_init_creates_table(self, tmp_path):
         """Test that initialization creates the table."""
         db_path = tmp_path / "test.db"
-        detector = TrendDetector(db_path=db_path)
+        TrendDetector(db_path=db_path)
 
         # Check table exists
         with sqlite3.connect(db_path) as conn:
@@ -203,11 +202,21 @@ class TestAnalyze:
         with patch.object(detector, "_get_period_data") as mock_get_data:
             # Mock current period with high counts
             current_data = {
-                "seo": {"category": "marketing", "count": 15, "engagement": 200.0, "titles": ["New Title"]},
+                "seo": {
+                    "category": "marketing",
+                    "count": 15,
+                    "engagement": 200.0,
+                    "titles": ["New Title"],
+                },
             }
             # Mock comparison period with low counts
             comparison_data = {
-                "seo": {"category": "marketing", "count": 5, "engagement": 100.0, "titles": ["Old Title"]},
+                "seo": {
+                    "category": "marketing",
+                    "count": 5,
+                    "engagement": 100.0,
+                    "titles": ["Old Title"],
+                },
             }
 
             # First call is current, second is comparison
@@ -224,11 +233,21 @@ class TestAnalyze:
         with patch.object(detector, "_get_period_data") as mock_get_data:
             # Mock current period with low counts
             current_data = {
-                "keyword_stuffing": {"category": "techniques", "count": 5, "engagement": 50.0, "titles": ["Declining"]},
+                "keyword_stuffing": {
+                    "category": "techniques",
+                    "count": 5,
+                    "engagement": 50.0,
+                    "titles": ["Declining"],
+                },
             }
             # Mock comparison period with high counts
             comparison_data = {
-                "keyword_stuffing": {"category": "techniques", "count": 20, "engagement": 100.0, "titles": ["Old practice"]},
+                "keyword_stuffing": {
+                    "category": "techniques",
+                    "count": 20,
+                    "engagement": 100.0,
+                    "titles": ["Old practice"],
+                },
             }
 
             mock_get_data.side_effect = [current_data, comparison_data]
@@ -244,7 +263,12 @@ class TestAnalyze:
         with patch.object(detector, "_get_period_data") as mock_get_data:
             # Mock current period with data
             current_data = {
-                "ai_seo": {"category": "ai", "count": 10, "engagement": 300.0, "titles": ["AI SEO is new"]},
+                "ai_seo": {
+                    "category": "ai",
+                    "count": 10,
+                    "engagement": 300.0,
+                    "titles": ["AI SEO is new"],
+                },
             }
             # Mock comparison period with no data
             comparison_data = {}
@@ -402,33 +426,42 @@ class TestModuleFunctions:
             stable_hot=[],
         )
 
-        with patch.object(TrendDetector, "analyze", return_value=mock_report):
-            with patch.object(TrendDetector, "_ensure_table"):
-                import signalsift.processing.trends as trends_module
-                trends_module._default_detector = None
+        with (
+            patch.object(TrendDetector, "analyze", return_value=mock_report),
+            patch.object(TrendDetector, "_ensure_table"),
+        ):
+            import signalsift.processing.trends as trends_module
 
-                report = analyze_trends()
+            trends_module._default_detector = None
 
-                assert isinstance(report, TrendReport)
+            report = analyze_trends()
+
+            assert isinstance(report, TrendReport)
 
     def test_get_emerging_topics_function(self):
         """Test get_emerging_topics convenience function."""
-        with patch.object(TrendDetector, "get_emerging_topics", return_value=[]):
-            with patch.object(TrendDetector, "_ensure_table"):
-                import signalsift.processing.trends as trends_module
-                trends_module._default_detector = None
+        with (
+            patch.object(TrendDetector, "get_emerging_topics", return_value=[]),
+            patch.object(TrendDetector, "_ensure_table"),
+        ):
+            import signalsift.processing.trends as trends_module
 
-                topics = get_emerging_topics(days=7)
+            trends_module._default_detector = None
 
-                assert topics == []
+            topics = get_emerging_topics(days=7)
+
+            assert topics == []
 
     def test_get_declining_topics_function(self):
         """Test get_declining_topics convenience function."""
-        with patch.object(TrendDetector, "get_declining_topics", return_value=[]):
-            with patch.object(TrendDetector, "_ensure_table"):
-                import signalsift.processing.trends as trends_module
-                trends_module._default_detector = None
+        with (
+            patch.object(TrendDetector, "get_declining_topics", return_value=[]),
+            patch.object(TrendDetector, "_ensure_table"),
+        ):
+            import signalsift.processing.trends as trends_module
 
-                topics = get_declining_topics(days=7)
+            trends_module._default_detector = None
 
-                assert topics == []
+            topics = get_declining_topics(days=7)
+
+            assert topics == []

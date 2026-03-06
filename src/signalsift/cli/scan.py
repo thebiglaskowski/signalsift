@@ -7,6 +7,7 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from signalsift.config import get_settings
+from signalsift.database.models import HackerNewsItem
 from signalsift.database.queries import (
     insert_reddit_threads_batch,
     insert_youtube_videos_batch,
@@ -96,9 +97,8 @@ def scan(
     # Scan Reddit
     # Determine if Reddit scanning is possible based on mode
     reddit_mode = settings.reddit.mode
-    can_scan_reddit = (
-        reddit_mode == "rss"  # RSS mode doesn't need credentials
-        or (reddit_mode == "api" and settings.has_reddit_credentials())
+    can_scan_reddit = reddit_mode == "rss" or (  # RSS mode doesn't need credentials
+        reddit_mode == "api" and settings.has_reddit_credentials()
     )
 
     if scan_reddit and can_scan_reddit:
@@ -107,10 +107,9 @@ def scan(
 
         try:
             # Choose the appropriate source based on mode
-            if reddit_mode == "rss":
-                reddit_source = RedditRSSSource()
-            else:
-                reddit_source = RedditSource()
+            reddit_source: RedditRSSSource | RedditSource = (
+                RedditRSSSource() if reddit_mode == "rss" else RedditSource()
+            )
 
             with Progress(
                 SpinnerColumn(),
@@ -153,7 +152,9 @@ def scan(
 
     elif scan_reddit and reddit_mode == "api":
         console.print("[yellow]⚠[/yellow] Reddit API credentials not configured. Skipping.")
-        console.print("[dim]  Tip: Set mode to 'rss' in config.yaml to use RSS feeds instead.[/dim]")
+        console.print(
+            "[dim]  Tip: Set mode to 'rss' in config.yaml to use RSS feeds instead.[/dim]"
+        )
 
     # Scan YouTube
     if scan_youtube and settings.has_youtube_credentials():
@@ -210,8 +211,8 @@ def scan(
         console.print("\n[bold]Scanning Hacker News...[/bold]")
 
         try:
-            from signalsift.sources.hackernews import HackerNewsSource
             from signalsift.database.queries import insert_hackernews_items_batch
+            from signalsift.sources.hackernews import HackerNewsSource
 
             hn_source = HackerNewsSource()
 
@@ -226,15 +227,15 @@ def scan(
 
                 progress.update(task, description=f"Processing {len(items)} posts...")
 
-                hn_items_to_insert = []
+                hn_items_to_insert: list[HackerNewsItem | dict] = []
                 for item in items:
                     hn_data = process_hackernews_item(item)
 
                     if dry_run:
                         if verbose:
                             console.print(
-                                f"  [dim]Would save:[/dim] {hn_data['title'][:60]}... "
-                                f"(score: {hn_data['relevance_score']:.0f})"
+                                f"  [dim]Would save:[/dim] {hn_data.title[:60]}... "
+                                f"(score: {hn_data.relevance_score:.0f})"
                             )
                     else:
                         hn_items_to_insert.append(hn_data)
@@ -257,8 +258,8 @@ def scan(
     # Track competitive intelligence
     if track_competitive and not dry_run:
         try:
-            from signalsift.processing.competitive import get_competitive_intel
             from signalsift.database.queries import get_reddit_threads, get_youtube_videos
+            from signalsift.processing.competitive import get_competitive_intel
 
             console.print("\n[dim]Tracking competitive tool mentions...[/dim]")
             intel = get_competitive_intel()

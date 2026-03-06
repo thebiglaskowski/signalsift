@@ -3,7 +3,6 @@
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
 from click.testing import CliRunner
 
 from signalsift import __version__
@@ -66,7 +65,7 @@ class TestCLIInitialization:
             mock_settings.return_value.has_reddit_credentials.return_value = False
             mock_settings.return_value.has_youtube_credentials.return_value = False
             mock_stat.return_value.st_size = 1024
-            result = runner.invoke(cli, ["--verbose", "status"])
+            runner.invoke(cli, ["--verbose", "status"])
 
             # Check logging was configured with DEBUG
             mock_logging.assert_called_once()
@@ -102,7 +101,7 @@ class TestCLIInitialization:
             mock_settings.return_value.has_reddit_credentials.return_value = False
             mock_settings.return_value.has_youtube_credentials.return_value = False
             mock_stat.return_value.st_size = 1024
-            result = runner.invoke(cli, ["status"])
+            runner.invoke(cli, ["status"])
 
             # Check logging was configured with INFO
             mock_logging.assert_called_once()
@@ -284,7 +283,10 @@ class TestMigrateCommand:
             patch("signalsift.cli.main.database_exists", return_value=True),
             patch("signalsift.cli.main.setup_logging"),
             patch("signalsift.database.migrations.migration_status", return_value=mock_status),
-            patch("signalsift.database.migrations.get_pending_migrations", return_value=[mock_migration_1, mock_migration_2]),
+            patch(
+                "signalsift.database.migrations.get_pending_migrations",
+                return_value=[mock_migration_1, mock_migration_2],
+            ),
         ):
             result = runner.invoke(cli, ["migrate", "--check"])
 

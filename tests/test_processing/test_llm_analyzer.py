@@ -81,23 +81,27 @@ class TestLLMAnalyzerInit:
 
     def test_init_with_openai_env_var(self):
         """Test initialization with OPENAI_API_KEY env var."""
-        with patch.dict("os.environ", {"OPENAI_API_KEY": "test-key"}, clear=True):
-            with patch.object(LLMAnalyzer, "_init_client"):
-                analyzer = LLMAnalyzer()
+        with (
+            patch.dict("os.environ", {"OPENAI_API_KEY": "test-key"}, clear=True),
+            patch.object(LLMAnalyzer, "_init_client"),
+        ):
+            analyzer = LLMAnalyzer()
 
-                assert analyzer._api_key == "test-key"
-                assert analyzer._provider == "openai"
-                assert analyzer._model == "gpt-4o-mini"
+            assert analyzer._api_key == "test-key"
+            assert analyzer._provider == "openai"
+            assert analyzer._model == "gpt-4o-mini"
 
     def test_init_with_anthropic_env_var(self):
         """Test initialization with ANTHROPIC_API_KEY env var."""
-        with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"}, clear=True):
-            with patch.object(LLMAnalyzer, "_init_client"):
-                analyzer = LLMAnalyzer()
+        with (
+            patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"}, clear=True),
+            patch.object(LLMAnalyzer, "_init_client"),
+        ):
+            analyzer = LLMAnalyzer()
 
-                assert analyzer._api_key == "test-key"
-                assert analyzer._provider == "anthropic"
-                assert analyzer._model == "claude-3-haiku-20240307"
+            assert analyzer._api_key == "test-key"
+            assert analyzer._provider == "anthropic"
+            assert analyzer._model == "claude-3-haiku-20240307"
 
     def test_init_with_explicit_api_key(self):
         """Test initialization with explicit API key."""
@@ -165,7 +169,6 @@ class TestLLMAnalyzerInitClient:
         # Remove openai from sys.modules to trigger ImportError
         import sys
 
-        original_modules = sys.modules.copy()
         # Clear any cached openai module
         sys.modules.pop("openai", None)
 

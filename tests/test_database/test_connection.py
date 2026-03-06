@@ -7,13 +7,13 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from signalsift.database.connection import (
+    _populate_default_keywords,
+    _populate_default_sources,
     database_exists,
     get_connection,
     get_db_path,
     initialize_database,
     reset_database,
-    _populate_default_keywords,
-    _populate_default_sources,
 )
 from signalsift.exceptions import DatabaseError
 
@@ -51,9 +51,11 @@ class TestGetConnection:
         mock_settings = MagicMock()
         mock_settings.database.path = db_path
 
-        with patch("signalsift.database.connection.get_settings", return_value=mock_settings):
-            with get_connection() as conn:
-                assert isinstance(conn, sqlite3.Connection)
+        with (
+            patch("signalsift.database.connection.get_settings", return_value=mock_settings),
+            get_connection() as conn,
+        ):
+            assert isinstance(conn, sqlite3.Connection)
 
     def test_connection_creates_parent_directories(self, tmp_path):
         """Test that get_connection creates parent directories."""
@@ -61,9 +63,11 @@ class TestGetConnection:
         mock_settings = MagicMock()
         mock_settings.database.path = db_path
 
-        with patch("signalsift.database.connection.get_settings", return_value=mock_settings):
-            with get_connection() as conn:
-                conn.execute("SELECT 1")
+        with (
+            patch("signalsift.database.connection.get_settings", return_value=mock_settings),
+            get_connection() as conn,
+        ):
+            conn.execute("SELECT 1")
 
         assert db_path.parent.exists()
 
@@ -73,9 +77,11 @@ class TestGetConnection:
         mock_settings = MagicMock()
         mock_settings.database.path = db_path
 
-        with patch("signalsift.database.connection.get_settings", return_value=mock_settings):
-            with get_connection() as conn:
-                assert conn.row_factory == sqlite3.Row
+        with (
+            patch("signalsift.database.connection.get_settings", return_value=mock_settings),
+            get_connection() as conn,
+        ):
+            assert conn.row_factory == sqlite3.Row
 
     def test_connection_commits_on_success(self, tmp_path):
         """Test that connection commits changes on success."""
@@ -105,11 +111,10 @@ class TestGetConnection:
                 conn.execute("CREATE TABLE test (id INTEGER PRIMARY KEY)")
 
             # Try to cause an error
-            with pytest.raises(DatabaseError) as exc_info:
-                with get_connection() as conn:
-                    conn.execute("INSERT INTO test (id) VALUES (1)")
-                    # This will cause a constraint error
-                    conn.execute("INSERT INTO test (id) VALUES (1)")
+            with pytest.raises(DatabaseError) as exc_info, get_connection() as conn:
+                conn.execute("INSERT INTO test (id) VALUES (1)")
+                # This will cause a constraint error
+                conn.execute("INSERT INTO test (id) VALUES (1)")
 
             assert "Database error" in str(exc_info.value)
 
@@ -119,13 +124,15 @@ class TestGetConnection:
         mock_settings = MagicMock()
         mock_settings.database.path = db_path
 
-        with patch("signalsift.database.connection.get_settings", return_value=mock_settings):
-            with get_connection() as conn:
-                pass
+        with (
+            patch("signalsift.database.connection.get_settings", return_value=mock_settings),
+            get_connection() as conn,
+        ):
+            pass
 
-            # Connection should be closed, attempting to use it should fail
-            with pytest.raises(Exception):
-                conn.execute("SELECT 1")
+        # Connection should be closed, attempting to use it should fail
+        with pytest.raises(sqlite3.ProgrammingError):
+            conn.execute("SELECT 1")
 
     def test_connection_raises_database_error(self, tmp_path):
         """Test that SQLite errors are wrapped in DatabaseError."""
@@ -134,10 +141,9 @@ class TestGetConnection:
         mock_settings.database.path = db_path
 
         with patch("signalsift.database.connection.get_settings", return_value=mock_settings):
-            with pytest.raises(DatabaseError) as exc_info:
-                with get_connection() as conn:
-                    # Try to select from non-existent table
-                    conn.execute("SELECT * FROM nonexistent_table")
+            with pytest.raises(DatabaseError) as exc_info, get_connection() as conn:
+                # Try to select from non-existent table
+                conn.execute("SELECT * FROM nonexistent_table")
 
             assert "Database error" in str(exc_info.value)
 
@@ -159,9 +165,7 @@ class TestInitializeDatabase:
 
             # Verify tables exist
             with sqlite3.connect(str(db_path)) as conn:
-                cursor = conn.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table'"
-                )
+                cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
                 tables = [row[0] for row in cursor.fetchall()]
 
                 # Check some expected tables exist
@@ -249,9 +253,7 @@ class TestPopulateDefaultSources:
 
             # Verify subreddits inserted
             with sqlite3.connect(str(db_path)) as conn:
-                cursor = conn.execute(
-                    "SELECT source_id FROM sources WHERE source_type='reddit'"
-                )
+                cursor = conn.execute("SELECT source_id FROM sources WHERE source_type='reddit'")
                 sources = [row[0] for row in cursor.fetchall()]
 
                 assert "SEO" in sources
@@ -330,9 +332,7 @@ class TestPopulateDefaultSources:
 
             # Should still only have one SEO entry
             with sqlite3.connect(str(db_path)) as conn:
-                cursor = conn.execute(
-                    "SELECT COUNT(*) FROM sources WHERE source_id='SEO'"
-                )
+                cursor = conn.execute("SELECT COUNT(*) FROM sources WHERE source_id='SEO'")
                 count = cursor.fetchone()[0]
                 assert count == 1
 
@@ -368,9 +368,7 @@ class TestPopulateDefaultKeywords:
 
             # Verify keywords inserted with weights
             with sqlite3.connect(str(db_path)) as conn:
-                cursor = conn.execute(
-                    "SELECT keyword, category, weight FROM keywords"
-                )
+                cursor = conn.execute("SELECT keyword, category, weight FROM keywords")
                 keywords = {row[0]: (row[1], row[2]) for row in cursor.fetchall()}
 
                 # success_signals should have weight 1.5
@@ -407,9 +405,7 @@ class TestPopulateDefaultKeywords:
                 conn.commit()
 
             with sqlite3.connect(str(db_path)) as conn:
-                cursor = conn.execute(
-                    "SELECT weight FROM keywords WHERE keyword='mystery_keyword'"
-                )
+                cursor = conn.execute("SELECT weight FROM keywords WHERE keyword='mystery_keyword'")
                 weight = cursor.fetchone()[0]
                 assert weight == 1.0
 
@@ -442,9 +438,7 @@ class TestPopulateDefaultKeywords:
 
             # Original weight should be preserved
             with sqlite3.connect(str(db_path)) as conn:
-                cursor = conn.execute(
-                    "SELECT weight FROM keywords WHERE keyword='existing'"
-                )
+                cursor = conn.execute("SELECT weight FROM keywords WHERE keyword='existing'")
                 weight = cursor.fetchone()[0]
                 assert weight == 2.0  # Original weight preserved
 

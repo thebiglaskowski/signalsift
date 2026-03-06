@@ -5,7 +5,7 @@ import re
 from datetime import datetime
 from functools import lru_cache
 
-from signalsift.database.models import HackerNewsItem, RedditThread, YouTubeVideo
+from signalsift.database.models import HackerNewsItem, RedditThread, Source, YouTubeVideo
 from signalsift.database.queries import get_sources_by_type
 from signalsift.processing.classification import classify_content
 from signalsift.processing.keywords import (
@@ -155,14 +155,11 @@ def contains_numbers(text: str) -> bool:
         r"increased\s+by\s+\d+",  # Increase mentions
         r"\d+\s*x\b",  # Multipliers (e.g., "3x")
     ]
-    for pattern in patterns:
-        if re.search(pattern, text, re.IGNORECASE):
-            return True
-    return False
+    return any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns)
 
 
 @lru_cache(maxsize=8)
-def _get_sources_for_type(source_type: str) -> tuple:
+def _get_sources_for_type(source_type: str) -> tuple[Source, ...]:
     """Load all sources for a given type, cached to avoid N+1 queries during batch scoring."""
     return tuple(get_sources_by_type(source_type, enabled_only=False))
 
@@ -210,7 +207,9 @@ def calculate_reddit_score(
     # === Keyword matches (max 35 points) ===
     keyword_score = 0.0
     for match in keyword_matches:
-        keyword_score += min(match.count, KEYWORD_MAX_MATCH_COUNT) * match.weight * KEYWORD_MULTIPLIER
+        keyword_score += (
+            min(match.count, KEYWORD_MAX_MATCH_COUNT) * match.weight * KEYWORD_MULTIPLIER
+        )
     score += min(keyword_score, KEYWORD_MAX_TOTAL)
 
     # === Content quality signals (max 15 points) ===
@@ -284,7 +283,11 @@ def calculate_youtube_score(
     # === Keyword matches (max 35 points) ===
     keyword_score = 0.0
     for match in keyword_matches:
-        keyword_score += min(match.count, YOUTUBE_KEYWORD_MAX_MATCH_COUNT) * match.weight * YOUTUBE_KEYWORD_MULTIPLIER
+        keyword_score += (
+            min(match.count, YOUTUBE_KEYWORD_MAX_MATCH_COUNT)
+            * match.weight
+            * YOUTUBE_KEYWORD_MULTIPLIER
+        )
     score += min(keyword_score, KEYWORD_MAX_TOTAL)
 
     # === Content quality signals (max 20 points) ===
@@ -292,7 +295,10 @@ def calculate_youtube_score(
     duration = video.duration_seconds or 0
     if YOUTUBE_OPTIMAL_DURATION_MIN <= duration <= YOUTUBE_OPTIMAL_DURATION_MAX:
         score += YOUTUBE_OPTIMAL_DURATION_BONUS
-    elif YOUTUBE_ACCEPTABLE_DURATION_MIN <= duration < YOUTUBE_OPTIMAL_DURATION_MIN or YOUTUBE_OPTIMAL_DURATION_MAX < duration <= YOUTUBE_ACCEPTABLE_DURATION_MAX:
+    elif (
+        YOUTUBE_ACCEPTABLE_DURATION_MIN <= duration < YOUTUBE_OPTIMAL_DURATION_MIN
+        or YOUTUBE_OPTIMAL_DURATION_MAX < duration <= YOUTUBE_ACCEPTABLE_DURATION_MAX
+    ):
         score += YOUTUBE_ACCEPTABLE_DURATION_BONUS
 
     # Transcript available
@@ -455,7 +461,9 @@ def calculate_hackernews_score(
     # === Keyword matches (max 35 points) ===
     keyword_score = 0.0
     for match in keyword_matches:
-        keyword_score += min(match.count, KEYWORD_MAX_MATCH_COUNT) * match.weight * KEYWORD_MULTIPLIER
+        keyword_score += (
+            min(match.count, KEYWORD_MAX_MATCH_COUNT) * match.weight * KEYWORD_MULTIPLIER
+        )
     score += min(keyword_score, KEYWORD_MAX_TOTAL)
 
     # === Content type bonus (max 15 points) ===

@@ -1,7 +1,5 @@
 """Tests for content classification module."""
 
-import pytest
-
 from signalsift.processing.classification import (
     CATEGORY_NAMES,
     CATEGORY_SIGNALS,
@@ -42,7 +40,7 @@ class TestCategoryNames:
 
     def test_names_are_strings(self):
         """Test that all category names are strings."""
-        for category, name in CATEGORY_NAMES.items():
+        for _, name in CATEGORY_NAMES.items():
             assert isinstance(name, str)
             assert len(name) > 0
 

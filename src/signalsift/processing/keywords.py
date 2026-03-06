@@ -10,10 +10,14 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from signalsift.database.models import Keyword
 from signalsift.database.queries import get_all_keywords
 from signalsift.utils.logging import get_logger
+
+if TYPE_CHECKING:
+    from signalsift.processing.semantic import SemanticExpander
 
 logger = get_logger(__name__)
 
@@ -60,7 +64,7 @@ class KeywordMatcher:
         self._enable_semantic = enable_semantic
         self._cache_dir = cache_dir
         self._semantic_available = False
-        self._expander = None
+        self._expander: SemanticExpander | None = None
 
         # Initialize semantic expansion
         if enable_semantic:
@@ -71,7 +75,6 @@ class KeywordMatcher:
         try:
             from signalsift.processing.semantic import (
                 SemanticExpander,
-                is_semantic_expansion_available,
             )
 
             self._expander = SemanticExpander(cache_dir=self._cache_dir)
@@ -79,8 +82,7 @@ class KeywordMatcher:
 
             if self._semantic_available:
                 logger.info(
-                    "Semantic keyword expansion enabled "
-                    "(spaCy model loaded successfully)"
+                    "Semantic keyword expansion enabled " "(spaCy model loaded successfully)"
                 )
             else:
                 logger.info(
@@ -113,6 +115,8 @@ class KeywordMatcher:
         self._semantic_patterns.clear()
 
         # Build exact match patterns
+        if self._keywords is None:
+            return
         for kw in self._keywords:
             pattern = re.compile(
                 r"\b" + re.escape(kw.keyword.lower()) + r"\b",
@@ -254,9 +258,7 @@ class KeywordMatcher:
         """Get list of matched keyword strings."""
         return [m.keyword for m in matches]
 
-    def get_matches_by_category(
-        self, matches: list[KeywordMatch]
-    ) -> dict[str, list[KeywordMatch]]:
+    def get_matches_by_category(self, matches: list[KeywordMatch]) -> dict[str, list[KeywordMatch]]:
         """Group matches by category."""
         by_category: dict[str, list[KeywordMatch]] = {}
         for match in matches:
@@ -281,7 +283,7 @@ class KeywordMatcher:
             "total": len(matches),
             "exact": exact,
             "semantic": semantic,
-            "categories": len(set(m.category for m in matches)),
+            "categories": len({m.category for m in matches}),
         }
 
 

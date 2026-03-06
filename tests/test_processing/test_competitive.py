@@ -1,20 +1,19 @@
 """Tests for competitive intelligence module."""
 
 import sqlite3
-import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
 from signalsift.processing.competitive import (
     COMPLAINT_PATTERNS,
+    FEATURE_REQUEST_PATTERNS,
+    PRAISE_PATTERNS,
     CompetitiveIntelligence,
     CompetitiveReport,
     FeatureGap,
-    FEATURE_REQUEST_PATTERNS,
-    PRAISE_PATTERNS,
     ToolStats,
     get_competitive_intel,
     get_tool_report,
@@ -113,7 +112,7 @@ class TestCompetitiveIntelligenceInit:
     def test_init_creates_table(self, tmp_path):
         """Test that initialization creates the table."""
         db_path = tmp_path / "test.db"
-        intel = CompetitiveIntelligence(db_path=db_path)
+        CompetitiveIntelligence(db_path=db_path)
 
         # Check table exists
         with sqlite3.connect(db_path) as conn:
@@ -212,7 +211,9 @@ class TestGetToolStats:
         """Test that sentiment counts are accurate."""
         with sqlite3.connect(intel.db_path) as conn:
             # Insert positive, negative, and neutral mentions
-            for i, sentiment in enumerate(["positive", "negative", "neutral", "switching_from", "switching_to"]):
+            for i, sentiment in enumerate(
+                ["positive", "negative", "neutral", "switching_from", "switching_to"]
+            ):
                 conn.execute(
                     """
                     INSERT INTO tool_mentions
@@ -416,14 +417,17 @@ class TestModuleFunctions:
 
     def test_track_tool_mentions_function(self):
         """Test track_tool_mentions convenience function."""
-        with patch.object(CompetitiveIntelligence, "track_content", return_value=5) as mock_track:
-            with patch.object(CompetitiveIntelligence, "_ensure_table"):
-                import signalsift.processing.competitive as comp_module
-                comp_module._default_intel = None
+        with (
+            patch.object(CompetitiveIntelligence, "track_content", return_value=5),
+            patch.object(CompetitiveIntelligence, "_ensure_table"),
+        ):
+            import signalsift.processing.competitive as comp_module
 
-                result = track_tool_mentions(threads=[], videos=[])
+            comp_module._default_intel = None
 
-                assert result == 5
+            result = track_tool_mentions(threads=[], videos=[])
+
+            assert result == 5
 
     def test_get_tool_report_function(self):
         """Test get_tool_report convenience function."""
@@ -438,11 +442,14 @@ class TestModuleFunctions:
             head_to_head={},
         )
 
-        with patch.object(CompetitiveIntelligence, "generate_report", return_value=mock_report):
-            with patch.object(CompetitiveIntelligence, "_ensure_table"):
-                import signalsift.processing.competitive as comp_module
-                comp_module._default_intel = None
+        with (
+            patch.object(CompetitiveIntelligence, "generate_report", return_value=mock_report),
+            patch.object(CompetitiveIntelligence, "_ensure_table"),
+        ):
+            import signalsift.processing.competitive as comp_module
 
-                result = get_tool_report(days=30)
+            comp_module._default_intel = None
 
-                assert isinstance(result, CompetitiveReport)
+            result = get_tool_report(days=30)
+
+            assert isinstance(result, CompetitiveReport)

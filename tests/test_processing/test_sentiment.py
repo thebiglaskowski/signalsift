@@ -115,7 +115,7 @@ class TestSentimentAnalyzerInit:
     def test_init_with_textblob_available(self):
         """Test initialization when TextBlob is available."""
         with patch.object(SentimentAnalyzer, "_load_textblob") as mock_load:
-            analyzer = SentimentAnalyzer()
+            SentimentAnalyzer()
             mock_load.assert_called_once()
 
     def test_init_without_textblob(self):
@@ -369,31 +369,23 @@ class TestPatternBasedSentiment:
 
     def test_positive_words(self, analyzer):
         """Test detection of positive words."""
-        polarity, subjectivity = analyzer._pattern_based_sentiment(
-            "this is great and excellent"
-        )
+        polarity, subjectivity = analyzer._pattern_based_sentiment("this is great and excellent")
         assert polarity > 0
 
     def test_negative_words(self, analyzer):
         """Test detection of negative words."""
-        polarity, subjectivity = analyzer._pattern_based_sentiment(
-            "this is terrible and broken"
-        )
+        polarity, subjectivity = analyzer._pattern_based_sentiment("this is terrible and broken")
         assert polarity < 0
 
     def test_mixed_words(self, analyzer):
         """Test balanced positive and negative words."""
-        polarity, subjectivity = analyzer._pattern_based_sentiment(
-            "this is great but terrible"
-        )
+        polarity, subjectivity = analyzer._pattern_based_sentiment("this is great but terrible")
         # Should be close to neutral
         assert -0.1 <= polarity <= 0.1
 
     def test_no_sentiment_words(self, analyzer):
         """Test text with no sentiment words."""
-        polarity, subjectivity = analyzer._pattern_based_sentiment(
-            "the table has four legs"
-        )
+        polarity, subjectivity = analyzer._pattern_based_sentiment("the table has four legs")
         assert polarity == 0.0
         assert subjectivity == 0.3
 
@@ -408,9 +400,7 @@ class TestPatternBasedSentiment:
     def test_polarity_clamping(self, analyzer):
         """Test that polarity is clamped between -1 and 1."""
         # Even with many words, should stay in range
-        polarity, subjectivity = analyzer._pattern_based_sentiment(
-            "great " * 100
-        )
+        polarity, subjectivity = analyzer._pattern_based_sentiment("great " * 100)
         assert -1.0 <= polarity <= 1.0
 
 

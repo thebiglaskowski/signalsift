@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import contextlib
 import functools
 import random
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable, ParamSpec, TypeVar
+from typing import Any, ParamSpec, TypeVar
 
 import requests
 
@@ -110,9 +112,12 @@ def with_retry(
                     last_exception = e
 
                     # Check if it's a response with non-retryable status
-                    if isinstance(e, requests.HTTPError) and e.response is not None:
-                        if e.response.status_code not in config.retryable_status_codes:
-                            raise
+                    if (
+                        isinstance(e, requests.HTTPError)
+                        and e.response is not None
+                        and e.response.status_code not in config.retryable_status_codes
+                    ):
+                        raise
 
                     if attempt < config.max_retries:
                         delay = calculate_backoff_delay(attempt, config)
@@ -142,7 +147,7 @@ def retry_request(
     url: str,
     session: requests.Session | None = None,
     config: RetryConfig | None = None,
-    **kwargs,
+    **kwargs: Any,
 ) -> requests.Response:
     """
     Make an HTTP request with retry logic.
@@ -180,10 +185,8 @@ def retry_request(
                     # Check for Retry-After header
                     retry_after = response.headers.get("Retry-After")
                     if retry_after:
-                        try:
+                        with contextlib.suppress(ValueError):
                             delay = max(delay, float(retry_after))
-                        except ValueError:
-                            pass  # Not a valid number, use calculated delay
 
                     logger.warning(
                         f"Request to {url} returned {response.status_code}. "

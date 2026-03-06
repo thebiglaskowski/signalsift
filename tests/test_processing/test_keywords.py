@@ -1,7 +1,6 @@
 """Tests for keyword matching utilities."""
 
-import re
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -58,7 +57,7 @@ class TestKeywordMatcherInit:
             patch("signalsift.processing.keywords.get_all_keywords", return_value=[]),
             patch.object(KeywordMatcher, "_init_semantic") as mock_init,
         ):
-            matcher = KeywordMatcher(enable_semantic=True)
+            KeywordMatcher(enable_semantic=True)
             mock_init.assert_called_once()
 
 

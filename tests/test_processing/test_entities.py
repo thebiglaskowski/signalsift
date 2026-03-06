@@ -1,10 +1,11 @@
 """Tests for entity extraction module."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
 from signalsift.processing.entities import (
+    KNOWN_TOOLS,
     EntityExtractionResult,
     EntityExtractor,
     MoneyMention,
@@ -12,7 +13,6 @@ from signalsift.processing.entities import (
     WebsiteMention,
     extract_entities,
     get_extractor,
-    KNOWN_TOOLS,
 )
 
 
@@ -81,7 +81,7 @@ class TestEntityExtractorInit:
         """Test initialization when spaCy is not available."""
         with patch.object(EntityExtractor, "_load_model") as mock_load:
             mock_load.return_value = None
-            extractor = EntityExtractor()
+            EntityExtractor()
             mock_load.assert_called_once()
 
     def test_is_available_property(self):

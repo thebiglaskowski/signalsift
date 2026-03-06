@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from signalsift.processing.sentiment import analyze_sentiment, SentimentCategory
+from signalsift.processing.sentiment import SentimentCategory, analyze_sentiment
 from signalsift.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -71,13 +71,29 @@ PAIN_PATTERNS = [
 
 # Sentence quality indicators
 WEAK_STARTS = [
-    "um", "uh", "like", "so", "well", "yeah", "ok", "okay",
-    "anyway", "basically", "literally", "honestly",
+    "um",
+    "uh",
+    "like",
+    "so",
+    "well",
+    "yeah",
+    "ok",
+    "okay",
+    "anyway",
+    "basically",
+    "literally",
+    "honestly",
 ]
 
 STRONG_STARTERS = [
-    "the key", "what worked", "i learned", "pro tip",
-    "my advice", "the best", "here's what", "after",
+    "the key",
+    "what worked",
+    "i learned",
+    "pro tip",
+    "my advice",
+    "the best",
+    "here's what",
+    "after",
 ]
 
 
@@ -122,7 +138,7 @@ class QuoteExtractor:
         sentences = self._split_sentences(text)
         quotes: list[Quote] = []
 
-        for i, sentence in enumerate(sentences):
+        for _, sentence in enumerate(sentences):
             # Skip if too short or too long
             if len(sentence) < self.min_length or len(sentence) > self.max_length:
                 continue
@@ -205,10 +221,10 @@ class QuoteExtractor:
                 return True
 
         # Check for questions (usually not quotable)
-        if sentence.strip().endswith("?"):
-            # Unless it's a rhetorical question with insight
-            if not any(re.search(p, sentence_lower) for p in INSIGHT_PATTERNS):
-                return True
+        if sentence.strip().endswith("?") and not any(
+            re.search(p, sentence_lower) for p in INSIGHT_PATTERNS
+        ):
+            return True
 
         # Check for very short word count
         word_count = len(sentence.split())
@@ -217,10 +233,7 @@ class QuoteExtractor:
 
         # Check for excessive punctuation (often indicates low quality)
         punctuation_ratio = sum(1 for c in sentence if c in "!?...") / len(sentence)
-        if punctuation_ratio > 0.1:
-            return True
-
-        return False
+        return punctuation_ratio > 0.1
 
     def _score_sentence(self, sentence: str) -> tuple[float, str, bool]:
         """
@@ -235,45 +248,35 @@ class QuoteExtractor:
         has_metrics = False
 
         # Check for metrics (highest value)
-        metrics_found = sum(
-            1 for p in METRIC_PATTERNS if re.search(p, sentence_lower)
-        )
+        metrics_found = sum(1 for p in METRIC_PATTERNS if re.search(p, sentence_lower))
         if metrics_found > 0:
             score += 0.3 + (0.1 * min(metrics_found, 3))
             has_metrics = True
             quote_type = "metric"
 
         # Check for insight patterns
-        insights_found = sum(
-            1 for p in INSIGHT_PATTERNS if re.search(p, sentence_lower)
-        )
+        insights_found = sum(1 for p in INSIGHT_PATTERNS if re.search(p, sentence_lower))
         if insights_found > 0:
             score += 0.25 + (0.05 * min(insights_found, 2))
             if quote_type != "metric":
                 quote_type = "insight"
 
         # Check for advice patterns
-        advice_found = sum(
-            1 for p in ADVICE_PATTERNS if re.search(p, sentence_lower)
-        )
+        advice_found = sum(1 for p in ADVICE_PATTERNS if re.search(p, sentence_lower))
         if advice_found > 0:
             score += 0.2 + (0.05 * min(advice_found, 2))
             if quote_type not in ["metric", "insight"]:
                 quote_type = "advice"
 
         # Check for success patterns
-        success_found = sum(
-            1 for p in SUCCESS_PATTERNS if re.search(p, sentence_lower)
-        )
+        success_found = sum(1 for p in SUCCESS_PATTERNS if re.search(p, sentence_lower))
         if success_found > 0:
             score += 0.2
             if quote_type not in ["metric", "insight", "advice"]:
                 quote_type = "success"
 
         # Check for pain patterns
-        pain_found = sum(
-            1 for p in PAIN_PATTERNS if re.search(p, sentence_lower)
-        )
+        pain_found = sum(1 for p in PAIN_PATTERNS if re.search(p, sentence_lower))
         if pain_found > 0:
             score += 0.15
             if quote_type not in ["metric", "insight", "advice", "success"]:
@@ -293,8 +296,16 @@ class QuoteExtractor:
 
         # Specificity bonus (contains specific terms)
         specific_terms = [
-            "seo", "traffic", "rankings", "keywords", "backlinks",
-            "content", "affiliate", "revenue", "google", "algorithm",
+            "seo",
+            "traffic",
+            "rankings",
+            "keywords",
+            "backlinks",
+            "content",
+            "affiliate",
+            "revenue",
+            "google",
+            "algorithm",
         ]
         specificity = sum(1 for t in specific_terms if t in sentence_lower)
         score += min(specificity * 0.03, 0.15)

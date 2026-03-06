@@ -1,5 +1,6 @@
 """Tests for logging utility module."""
 
+import contextlib
 import logging
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -68,10 +69,8 @@ class TestSetupLogging:
             logging_module._initialized = False
 
             # This will try to use default directory
-            try:
-                setup_logging()
-            except Exception:
-                pass  # We just want to test the mkdir call
+            with contextlib.suppress(Exception):
+                setup_logging()  # We just want to test the mkdir call
 
             mock_dir.mkdir.assert_called_once()
 
@@ -184,9 +183,7 @@ class TestSetLogLevel:
         set_log_level("DEBUG")
 
         root_logger = logging.getLogger("signalsift")
-        file_handlers = [
-            h for h in root_logger.handlers if isinstance(h, logging.FileHandler)
-        ]
+        file_handlers = [h for h in root_logger.handlers if isinstance(h, logging.FileHandler)]
 
         for handler in file_handlers:
             assert handler.level == logging.DEBUG

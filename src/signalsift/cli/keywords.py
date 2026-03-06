@@ -88,10 +88,9 @@ def add_keyword_cmd(keywords: tuple[str, ...], category: str, weight: float) -> 
 @click.option("--force", is_flag=True, help="Skip confirmation")
 def remove_keyword_cmd(keyword: str, force: bool) -> None:
     """Remove a tracked keyword."""
-    if not force:
-        if not click.confirm(f"Remove keyword '{keyword}'?"):
-            console.print("[yellow]Cancelled.[/yellow]")
-            return
+    if not force and not click.confirm(f"Remove keyword '{keyword}'?"):
+        console.print("[yellow]Cancelled.[/yellow]")
+        return
 
     if remove_keyword(keyword):
         console.print(f"[green]✓[/green] Removed keyword: {keyword}")

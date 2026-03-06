@@ -1,16 +1,16 @@
 """Tests for Hacker News source adapter."""
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from signalsift.sources.hackernews import (
+    DEFAULT_SEARCH_QUERIES,
     HackerNewsItem,
     HackerNewsSource,
-    get_hackernews_source,
     fetch_hackernews,
-    DEFAULT_SEARCH_QUERIES,
+    get_hackernews_source,
 )
 
 
@@ -178,7 +178,7 @@ class TestHitToContentItem:
         }
 
         # Should not raise, should return None
-        item = source._hit_to_content_item(hit)
+        source._hit_to_content_item(hit)
         # The actual behavior depends on implementation - may or may not be None
 
 
@@ -258,8 +258,7 @@ class TestSearch:
         import requests
 
         with patch.object(
-            source._session, "get",
-            side_effect=requests.RequestException("Network error")
+            source._session, "get", side_effect=requests.RequestException("Network error")
         ):
             since = datetime(2024, 1, 1)
             items = source._search("SEO", since, limit=10)
@@ -281,7 +280,7 @@ class TestFetch:
             patch.object(source, "_search", return_value=[]) as mock_search,
             patch("time.sleep"),
         ):
-            result = source.fetch()
+            source.fetch()
 
             mock_search.assert_called_once()
             # Check that since was set to ~30 days ago
@@ -393,10 +392,7 @@ class TestFetchItemWithComments:
 
     def test_fetch_item_with_comments_error(self, source):
         """Test handling errors when fetching item."""
-        with patch.object(
-            source._session, "get",
-            side_effect=Exception("Network error")
-        ):
+        with patch.object(source._session, "get", side_effect=Exception("Network error")):
             item, comments = source.fetch_item_with_comments("12345")
 
             assert item is None
@@ -456,10 +452,7 @@ class TestGetFrontPage:
         """Test handling errors when fetching front page."""
         import requests
 
-        with patch.object(
-            source._session, "get",
-            side_effect=requests.RequestException("Error")
-        ):
+        with patch.object(source._session, "get", side_effect=requests.RequestException("Error")):
             items = source.get_front_page()
 
             assert items == []
@@ -473,7 +466,7 @@ class TestSearchRecent:
         source = ConcreteHackerNewsSource()
 
         with patch.object(source, "_search", return_value=[]) as mock_search:
-            result = source.search_recent("AI", days=7, limit=50)
+            source.search_recent("AI", days=7, limit=50)
 
             mock_search.assert_called_once()
             call_args = mock_search.call_args
@@ -524,7 +517,7 @@ class TestModuleFunctions:
         hn_module._default_source = concrete
 
         with patch.object(concrete, "fetch", return_value=[]) as mock_fetch:
-            result = fetch_hackernews(since=datetime(2024, 1, 1), limit=50)
+            fetch_hackernews(since=datetime(2024, 1, 1), limit=50)
             mock_fetch.assert_called_once()
 
         # Reset
