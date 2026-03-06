@@ -216,9 +216,9 @@ class TestSettings:
 
     def test_has_youtube_credentials_false(self):
         """Test has_youtube_credentials returns False when not set."""
-        with patch.dict("os.environ", {}, clear=True):
-            settings = Settings()
-            assert settings.has_youtube_credentials() is False
+        settings = Settings()
+        settings.youtube.api_key = ""
+        assert settings.has_youtube_credentials() is False
 
     def test_has_youtube_credentials_true(self):
         """Test has_youtube_credentials returns True when set."""

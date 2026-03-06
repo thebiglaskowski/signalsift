@@ -101,21 +101,21 @@ def _populate_default_keywords(conn: sqlite3.Connection) -> None:
         "pain_points": 1.5,          # Pain points reveal feature gaps
 
         # Core package signals (1.3) - Primary package relevance
-        "monetization": 1.3,         # ProfitForge - revenue strategies
-        "ai_visibility": 1.3,        # GEOForge - AI search optimization
-        "keyword_research": 1.3,     # SeedForge/GapForge - keyword discovery
-        "content_generation": 1.3,   # KeyForge - AI content creation
-        "competition": 1.3,          # SniperForge - competitive analysis
+        "monetization": 1.3,         # revenue strategies
+        "ai_visibility": 1.3,        # AI search optimization
+        "keyword_research": 1.3,     # keyword discovery
+        "content_generation": 1.3,   # AI content creation
+        "competition": 1.3,          # competitive analysis
 
-        # Supporting signals (1.2) - Secondary package relevance
-        "tool_mentions": 1.2,        # All packages - competitor insights
-        "techniques": 1.2,           # SniperForge/GapForge - SEO tactics
-        "image_generation": 1.2,     # ImageForge - visual content
-        "static_sites": 1.2,         # StaticForge - site optimization
-        "ecommerce": 1.2,            # ProfitForge - e-commerce strategies
+        # Supporting signals (1.2) - Secondary relevance
+        "tool_mentions": 1.2,        # competitor and tool insights
+        "techniques": 1.2,           # tactics and methods
+        "image_generation": 1.2,     # visual content
+        "static_sites": 1.2,         # site optimization
+        "ecommerce": 1.2,            # e-commerce strategies
 
         # Supplementary signals (1.1) - Broader context
-        "local_seo": 1.1,            # SeedForge/GapForge - local keywords
+        "local_seo": 1.1,            # local keywords
     }
 
     for category, keywords in DEFAULT_KEYWORDS.items():

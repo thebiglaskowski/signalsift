@@ -37,13 +37,13 @@ class ContentAnalysis:
     strategy_used: str | None
 
     # Package-specific fields
-    monetization_angle: str | None  # ProfitForge
-    geo_opportunity: str | None  # GEOForge
-    keyword_opportunity: str | None  # SeedForge/GapForge
-    content_strategy: str | None  # KeyForge
-    competitive_angle: str | None  # SniperForge
-    image_opportunity: str | None  # ImageForge
-    tech_insight: str | None  # StaticForge
+    monetization_angle: str | None
+    geo_opportunity: str | None
+    keyword_opportunity: str | None
+    content_strategy: str | None
+    competitive_angle: str | None
+    image_opportunity: str | None
+    tech_insight: str | None
 
     # Metadata
     confidence: float

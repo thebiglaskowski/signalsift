@@ -107,9 +107,9 @@ def list_categories() -> None:
         "pain_points": "User frustrations and problems to solve",
         "tool_mentions": "SEO tools and software references",
         "techniques": "SEO methods and strategies",
-        "monetization": "Revenue and monetization discussions (ProfitForge)",
-        "ai_visibility": "AI search and GEO optimization (GEOForge)",
-        "content_generation": "AI content and automation (KeyForge)",
+        "monetization": "Revenue and monetization discussions",
+        "ai_visibility": "AI search and GEO optimization",
+        "content_generation": "AI content and automation",
     }
 
     table = Table(

@@ -66,7 +66,7 @@ CATEGORY_SIGNALS: dict[str, list[str]] = {
         "rollout",
     ],
 
-    # === ProfitForge-relevant categories ===
+    # === Monetization categories ===
     "monetization": [
         "affiliate",
         "commission",
@@ -99,7 +99,7 @@ CATEGORY_SIGNALS: dict[str, list[str]] = {
         "amazon associates",
     ],
 
-    # === GEOForge-relevant categories ===
+    # === AI visibility categories ===
     "ai_visibility": [
         "chatgpt",
         "perplexity",
@@ -113,7 +113,7 @@ CATEGORY_SIGNALS: dict[str, list[str]] = {
         "generative search",
     ],
 
-    # === KeyForge-relevant categories ===
+    # === AI content categories ===
     "ai_content": [
         "ai writer",
         "ai generated",
@@ -125,7 +125,7 @@ CATEGORY_SIGNALS: dict[str, list[str]] = {
         "content at scale",
     ],
 
-    # === ImageForge-relevant categories ===
+    # === Image generation categories ===
     "image_generation": [
         "dall-e",
         "midjourney",
@@ -136,7 +136,7 @@ CATEGORY_SIGNALS: dict[str, list[str]] = {
         "image generator",
     ],
 
-    # === StaticForge-relevant categories ===
+    # === Static site categories ===
     "static_sites": [
         "static site",
         "jamstack",
@@ -147,7 +147,7 @@ CATEGORY_SIGNALS: dict[str, list[str]] = {
         "structured data",
     ],
 
-    # === SniperForge-relevant categories ===
+    # === Competitor analysis categories ===
     "competitor_analysis": [
         "competitor",
         "outrank",
@@ -167,7 +167,7 @@ CATEGORY_SIGNALS: dict[str, list[str]] = {
         "framework",
     ],
 
-    # === SeedForge/GapForge-relevant categories ===
+    # === Keyword research categories ===
     "keyword_research": [
         "keyword research",
         "keyword difficulty",
@@ -195,17 +195,17 @@ CATEGORY_NAMES: dict[str, str] = {
     "tool_comparison": "Tool Comparison",
     "technique": "Technique / Strategy",
     "industry_news": "Industry News",
-    "monetization": "Monetization Intelligence (ProfitForge)",
-    "roi_analysis": "ROI Analysis (ProfitForge)",
-    "ecommerce": "E-commerce (ProfitForge)",
-    "ai_visibility": "AI Visibility / GEO (GEOForge)",
-    "ai_content": "AI Content Generation (KeyForge)",
-    "image_generation": "Image Generation (ImageForge)",
-    "static_sites": "Static Sites / Technical (StaticForge)",
-    "competitor_analysis": "Competitor Analysis (SniperForge)",
-    "content_brief": "Content Brief / Structure (SniperForge)",
-    "keyword_research": "Keyword Research (SeedForge/GapForge)",
-    "local_seo": "Local SEO (SeedForge/GapForge)",
+    "monetization": "Monetization Intelligence",
+    "roi_analysis": "ROI Analysis",
+    "ecommerce": "E-commerce",
+    "ai_visibility": "AI Visibility / GEO",
+    "ai_content": "AI Content Generation",
+    "image_generation": "Image Generation",
+    "static_sites": "Static Sites / Technical",
+    "competitor_analysis": "Competitor Analysis",
+    "content_brief": "Content Brief / Structure",
+    "keyword_research": "Keyword Research",
+    "local_seo": "Local SEO",
     "general": "General",
 }
 
