@@ -1849,12 +1849,10 @@ name = "signalsift"
 version = "1.0.0"
 source = { editable = "." }
 dependencies = [
-    { name = "anthropic" },
     { name = "click" },
     { name = "feedparser" },
     { name = "google-api-python-client" },
     { name = "jinja2" },
-    { name = "openai" },
     { name = "praw" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
@@ -1862,12 +1860,29 @@ dependencies = [
     { name = "pyyaml" },
     { name = "requests" },
     { name = "rich" },
-    { name = "spacy" },
     { name = "textblob" },
     { name = "youtube-transcript-api" },
 ]
 
 [package.optional-dependencies]
+ai = [
+    { name = "anthropic" },
+    { name = "openai" },
+]
+all = [
+    { name = "anthropic" },
+    { name = "faiss-cpu" },
+    { name = "openai" },
+    { name = "spacy" },
+]
+nlp = [
+    { name = "spacy" },
+]
+semantic = [
+    { name = "faiss-cpu" },
+]
+
+[package.dev-dependencies]
 dev = [
     { name = "black" },
     { name = "mypy" },
@@ -1875,36 +1890,41 @@ dev = [
     { name = "pytest-cov" },
     { name = "ruff" },
 ]
-semantic = [
-    { name = "faiss-cpu" },
-]
 
 [package.metadata]
 requires-dist = [
-    { name = "anthropic", specifier = ">=0.39.0" },
-    { name = "black", marker = "extra == 'dev'", specifier = ">=23.0.0" },
+    { name = "anthropic", marker = "extra == 'ai'", specifier = ">=0.39.0" },
+    { name = "anthropic", marker = "extra == 'all'", specifier = ">=0.39.0" },
     { name = "click", specifier = ">=8.1.0" },
+    { name = "faiss-cpu", marker = "extra == 'all'", specifier = ">=1.7.4" },
     { name = "faiss-cpu", marker = "extra == 'semantic'", specifier = ">=1.7.4" },
     { name = "feedparser", specifier = ">=6.0.0" },
     { name = "google-api-python-client", specifier = ">=2.100.0" },
     { name = "jinja2", specifier = ">=3.1.0" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.7.0" },
-    { name = "openai", specifier = ">=1.0.0" },
+    { name = "openai", marker = "extra == 'ai'", specifier = ">=1.0.0" },
+    { name = "openai", marker = "extra == 'all'", specifier = ">=1.0.0" },
     { name = "praw", specifier = ">=7.7.0" },
     { name = "pydantic", specifier = ">=2.5.0" },
     { name = "pydantic-settings", specifier = ">=2.1.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.4.0" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.1.0" },
     { name = "python-dotenv", specifier = ">=1.0.0" },
     { name = "pyyaml", specifier = ">=6.0.0" },
     { name = "requests", specifier = ">=2.31.0" },
     { name = "rich", specifier = ">=13.0.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.0" },
-    { name = "spacy", specifier = ">=3.7.0" },
+    { name = "spacy", marker = "extra == 'all'", specifier = ">=3.7.0" },
+    { name = "spacy", marker = "extra == 'nlp'", specifier = ">=3.7.0" },
     { name = "textblob", specifier = ">=0.18.0" },
     { name = "youtube-transcript-api", specifier = ">=0.6.0" },
 ]
-provides-extras = ["dev", "semantic"]
+provides-extras = ["nlp", "ai", "semantic", "all"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "black", specifier = ">=23.0.0" },
+    { name = "mypy", specifier = ">=1.7.0" },
+    { name = "pytest", specifier = ">=7.4.0" },
+    { name = "pytest-cov", specifier = ">=4.1.0" },
+    { name = "ruff", specifier = ">=0.1.0" },
+]
 
 [[package]]
 name = "smart-open"

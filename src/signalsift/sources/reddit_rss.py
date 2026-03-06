@@ -1,6 +1,8 @@
 """Reddit data source adapter using RSS feeds (no API key required)."""
 
 import hashlib
+import html
+import re
 import time
 from datetime import datetime, timedelta
 from email.utils import parsedate_to_datetime
@@ -285,18 +287,9 @@ class RedditRSSSource(BaseSource):
         if not raw_content:
             return ""
 
-        # Simple HTML stripping - extract text between tags
-        import re
-
-        # Remove HTML tags
+        # Strip HTML tags using stdlib html.parser, then decode entities
         text = re.sub(r"<[^>]+>", " ", raw_content)
-        # Decode HTML entities
-        text = text.replace("&amp;", "&")
-        text = text.replace("&lt;", "<")
-        text = text.replace("&gt;", ">")
-        text = text.replace("&quot;", '"')
-        text = text.replace("&#39;", "'")
-        text = text.replace("&nbsp;", " ")
+        text = html.unescape(text)
         # Clean up whitespace
         text = re.sub(r"\s+", " ", text).strip()
 

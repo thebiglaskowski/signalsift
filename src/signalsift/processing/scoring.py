@@ -1,7 +1,9 @@
 """Relevance scoring algorithms for SignalSift."""
 
+import hashlib
 import re
 from datetime import datetime
+from functools import lru_cache
 
 from signalsift.database.models import HackerNewsItem, RedditThread, YouTubeVideo
 from signalsift.database.queries import get_sources_by_type
@@ -159,10 +161,15 @@ def contains_numbers(text: str) -> bool:
     return False
 
 
+@lru_cache(maxsize=8)
+def _get_sources_for_type(source_type: str) -> tuple:
+    """Load all sources for a given type, cached to avoid N+1 queries during batch scoring."""
+    return tuple(get_sources_by_type(source_type, enabled_only=False))
+
+
 def get_source_tier(source_type: str, source_id: str) -> int:
     """Get the tier for a source. Returns 2 (medium) if not found."""
-    sources = get_sources_by_type(source_type, enabled_only=False)
-    for source in sources:
+    for source in _get_sources_for_type(source_type):
         if source.source_id == source_id:
             return source.tier
     return 2  # Default to medium tier
@@ -331,9 +338,6 @@ def process_reddit_thread(
     source_tier = get_source_tier("reddit", item.source_id)
 
     # Create thread model
-    import hashlib
-    from datetime import datetime
-
     content_hash = hashlib.sha256(full_text.encode()).hexdigest()
 
     thread = RedditThread(
@@ -386,9 +390,6 @@ def process_youtube_video(
     source_tier = get_source_tier("youtube", item.source_id)
 
     # Create video model
-    import hashlib
-    from datetime import datetime
-
     content_hash = hashlib.sha256(full_text.encode()).hexdigest()
 
     video = YouTubeVideo(
@@ -489,9 +490,6 @@ def process_hackernews_item(
     Returns:
         Fully processed HackerNewsItem model.
     """
-    import hashlib
-    from datetime import datetime
-
     if matcher is None:
         matcher = get_matcher()
 

@@ -52,7 +52,9 @@ class TestScanCommand:
             patch("signalsift.cli.main.database_exists", return_value=True),
             patch("signalsift.cli.main.setup_logging"),
             patch("signalsift.cli.scan.get_settings", return_value=mock_settings),
+            patch("signalsift.cli.scan.RedditRSSSource") as mock_rss,
         ):
+            mock_rss.return_value.fetch.return_value = []
             result = runner.invoke(cli, ["scan"])
 
             # Should complete but may warn about credentials
@@ -165,10 +167,12 @@ class TestScanCommand:
             patch("signalsift.cli.main.setup_logging"),
             patch("signalsift.cli.scan.get_settings", return_value=mock_settings),
             patch("signalsift.cli.scan.RedditRSSSource") as mock_reddit,
+            patch("signalsift.cli.scan.process_reddit_thread") as mock_process,
         ):
             mock_source = MagicMock()
             mock_source.fetch.return_value = [mock_item]
             mock_reddit.return_value = mock_source
+            mock_process.return_value = MagicMock(title="Test Post", relevance_score=75.0)
 
             result = runner.invoke(cli, ["scan", "--reddit-only", "--dry-run"])
 
@@ -202,10 +206,13 @@ class TestScanCommand:
             patch("signalsift.cli.main.database_exists", return_value=True),
             patch("signalsift.cli.main.setup_logging"),
             patch("signalsift.cli.scan.get_settings", return_value=mock_settings),
+            patch("signalsift.cli.scan.RedditRSSSource") as mock_rss,
             patch("signalsift.cli.scan.YouTubeSource") as mock_youtube,
         ):
+            mock_rss.return_value.fetch.return_value = []
             mock_source = MagicMock()
             mock_source.fetch_channel.return_value = []
+            mock_source.fetch.return_value = []
             mock_youtube.return_value = mock_source
 
             result = runner.invoke(cli, ["scan", "--channels", "UC123,UC456"])

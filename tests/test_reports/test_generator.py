@@ -842,6 +842,11 @@ class TestStaticHelpers:
 class TestGenerate:
     """Tests for the generate method."""
 
+    @pytest.fixture(autouse=True)
+    def mock_cache_stats(self):
+        with patch("signalsift.reports.generator.get_cache_stats", return_value={}):
+            yield
+
     def test_raises_error_with_no_content(self, generator):
         """Test that ReportError is raised when no content available."""
         with patch("signalsift.reports.generator.get_unprocessed_content", return_value=([], [])):
@@ -1036,6 +1041,11 @@ class TestBuildGroupedContent:
 
 class TestConvenienceFunction:
     """Tests for the generate_report convenience function."""
+
+    @pytest.fixture(autouse=True)
+    def mock_cache_stats(self):
+        with patch("signalsift.reports.generator.get_cache_stats", return_value={}):
+            yield
 
     def test_convenience_function_creates_generator(self, mock_settings):
         """Test that convenience function creates and uses ReportGenerator."""
