@@ -56,3 +56,19 @@ htmlcov/
 
 # Radnom
 nul
+
+# Claude Sentient framework tooling (local AI dev tooling, not project code)
+.claude-plugin/
+.claude/agents/
+.claude/hooks/
+.claude/skills/
+.claude/state/
+.claude/session.log
+.codex/
+.cursor/
+agents/
+profiles/
+schemas/
+examples/
+test-utils.js
+coverage.json
