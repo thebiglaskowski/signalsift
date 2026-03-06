@@ -61,26 +61,26 @@ def list_keywords(category: str | None, show_all: bool) -> None:
 
 
 @keywords.command("add")
-@click.argument("keyword")
+@click.argument("keywords", nargs=-1, required=True)
 @click.option(
     "--category",
     required=True,
     help="Category (e.g., success_signals, pain_points, tool_mentions, techniques)",
 )
 @click.option("--weight", type=float, default=1.0, help="Scoring weight (default: 1.0)")
-def add_keyword_cmd(keyword: str, category: str, weight: float) -> None:
-    """Add a new tracked keyword."""
-    kw = Keyword(
-        keyword=keyword.lower(),
-        category=category,
-        weight=weight,
-        enabled=True,
-    )
-
-    add_keyword(kw)
-    console.print(
-        f"[green]✓[/green] Added keyword '{keyword}' to category '{category}' (weight: {weight})"
-    )
+def add_keyword_cmd(keywords: tuple[str, ...], category: str, weight: float) -> None:
+    """Add one or more tracked keywords."""
+    for keyword in keywords:
+        kw = Keyword(
+            keyword=keyword.lower(),
+            category=category,
+            weight=weight,
+            enabled=True,
+        )
+        add_keyword(kw)
+        console.print(
+            f"[green]✓[/green] Added keyword '{keyword}' to category '{category}' (weight: {weight})"
+        )
 
 
 @keywords.command("remove")
