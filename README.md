@@ -34,11 +34,19 @@ cd SignalSift
 uv venv
 uv pip install -e .
 
-# Grab the language model (for smart matching)
+# Optional: NLP (spaCy) for smart keyword matching
+uv pip install -e ".[nlp]"
 uv run python -m spacy download en_core_web_md
 
-# Optional: Install FAISS for faster semantic search (10-100x speedup)
-uv pip install faiss-cpu
+# Optional: AI summarization (OpenAI / Anthropic)
+uv pip install -e ".[ai]"
+
+# Optional: FAISS for faster semantic search (10-100x speedup)
+uv pip install -e ".[semantic]"
+
+# Or install everything at once
+uv pip install -e ".[all]"
+uv run python -m spacy download en_core_web_md
 
 # Initialize with example sources
 uv run sift init
