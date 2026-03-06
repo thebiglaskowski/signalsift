@@ -101,23 +101,48 @@ Hacker News is always scanned — there's no source to add.
 
 ### Setting Keywords
 
-Keywords are what SignalSift scores content against. The more specific, the better the signal.
+Keywords are what SignalSift scores content against. Each keyword belongs to a category, which keeps them organized and lets you apply different weights per group.
 
 ```bash
-# Add keywords
-uv run sift keywords add "machine learning" "fine tuning" "vibe coding"
+# Add keywords — one at a time, category is required
+uv run sift keywords add "machine learning" --category techniques
+uv run sift keywords add "switched from" --category tool_mentions
+uv run sift keywords add "what worked for me" --category success_signals
+
+# Add with a custom weight (default is 1.0; higher = more influential)
+uv run sift keywords add "case study" --category success_signals --weight 1.5
+
+# See available built-in categories
+uv run sift keywords categories
+
+# List all keywords (grouped by category)
+uv run sift keywords list
+
+# Filter by category
+uv run sift keywords list --category techniques
 
 # Remove a keyword
-uv run sift keywords remove "vibe coding"
-
-# List current keywords
-uv run sift keywords list
+uv run sift keywords remove "machine learning"
 ```
+
+**Built-in categories:**
+
+| Category | Use for |
+|----------|---------|
+| `success_signals` | Posts about wins, results, strategies that worked |
+| `pain_points` | Frustrations, problems, things not working |
+| `tool_mentions` | Software, tools, comparisons |
+| `techniques` | Methods, tactics, how-tos |
+| `monetization` | Revenue, income, pricing discussions |
+| `ai_visibility` | AI search, LLM mentions, GEO |
+| `content_generation` | AI writing, content automation |
+
+You can also use any custom category name — e.g., `--category crypto` or `--category competitors`.
 
 **Tips for good keywords:**
 - Phrases beat single words — `"side project launch"` is much more targeted than `"project"`
-- Include intent patterns — `"switched from"`, `"struggling with"`, `"what worked for me"` catch high-signal posts
-- Think in categories: success signals, pain points, tool comparisons, trend indicators
+- Intent patterns catch high-signal posts — `"switched from"`, `"struggling with"`, `"what worked for me"`
+- Use `--weight 1.5` for your highest-priority signals
 
 ### Tuning Settings
 
@@ -328,7 +353,8 @@ Reports are saved to `reports/YYYY-MM-DD.md`. Open the latest one with any markd
 | `uv run sift sources add <type> <id>` | Add a source (`reddit`, `youtube`) |
 | `uv run sift sources remove <type> <id>` | Remove a source |
 | `uv run sift keywords list` | List all keywords |
-| `uv run sift keywords add <kw> [kw...]` | Add one or more keywords |
+| `uv run sift keywords add <kw> --category <cat>` | Add a keyword to a category |
+| `uv run sift keywords categories` | List available keyword categories |
 | `uv run sift keywords remove <kw>` | Remove a keyword |
 | `uv run sift cache clear` | Remove old cached content |
 | `uv run sift migrate --check` | Show pending database migrations |
