@@ -85,6 +85,31 @@ def list_sources(show_all: bool) -> None:
         console.print(table)
 
 
+def _normalize_youtube_id(source_id: str) -> str:
+    """Normalize a YouTube channel URL or handle to a storable identifier.
+
+    Accepts:
+    - https://www.youtube.com/@handle
+    - https://www.youtube.com/channel/UCxxx
+    - @handle
+    - UCxxx (channel ID — returned as-is)
+    """
+    import re
+
+    # Full URL with handle: https://www.youtube.com/@handle
+    handle_url = re.match(r"https?://(?:www\.)?youtube\.com/@([\w.-]+)", source_id)
+    if handle_url:
+        return f"@{handle_url.group(1)}"
+
+    # Full URL with channel ID: https://www.youtube.com/channel/UCxxx
+    channel_url = re.match(r"https?://(?:www\.)?youtube\.com/channel/(UC[\w-]+)", source_id)
+    if channel_url:
+        return channel_url.group(1)
+
+    # Already a handle or channel ID — return as-is
+    return source_id
+
+
 @sources.command("add")
 @click.argument("source_type", type=click.Choice(["reddit", "youtube"]))
 @click.argument("source_id")
@@ -94,8 +119,11 @@ def add_source_cmd(source_type: str, source_id: str, name: str | None, tier: int
     """Add a new source.
 
     SOURCE_TYPE: 'reddit' or 'youtube'
-    SOURCE_ID: Subreddit name or YouTube channel ID
+    SOURCE_ID: Subreddit name, YouTube channel ID, @handle, or channel URL
     """
+    if source_type == "youtube":
+        source_id = _normalize_youtube_id(source_id)
+
     # Set default display name
     if name is None:
         if source_type == "reddit":

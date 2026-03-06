@@ -39,7 +39,7 @@ class YouTubeSource(BaseSource):
         self._transcript_api = YouTubeTranscriptApi()
 
     @property
-    def youtube(self):
+    def youtube(self) -> Any:
         """Get or create the YouTube API client."""
         if self._youtube is None:
             if not self.settings.has_youtube_credentials():
@@ -144,6 +144,19 @@ class YouTubeSource(BaseSource):
             limit=limit or self.settings.youtube.videos_per_channel,
         )
 
+    def _resolve_handle(self, handle: str) -> str | None:
+        """Resolve a @handle to a channel ID via the YouTube API."""
+        try:
+            response = self.youtube.channels().list(
+                part="id",
+                forHandle=handle.lstrip("@"),
+            ).execute()
+            items = response.get("items", [])
+            return items[0]["id"] if items else None
+        except HttpError as e:
+            logger.error(f"YouTube API error resolving handle {handle}: {e}")
+            return None
+
     def _fetch_channel(
         self,
         channel_id: str,
@@ -153,13 +166,20 @@ class YouTubeSource(BaseSource):
         limit: int = 10,
     ) -> list[ContentItem]:
         """Internal method to fetch from a channel."""
+        # Resolve @handle to a real channel ID if needed
+        if channel_id.startswith("@"):
+            resolved = self._resolve_handle(channel_id)
+            if not resolved:
+                logger.warning(f"Could not resolve YouTube handle: {channel_id}")
+                return []
+            logger.info(f"Resolved {channel_id} -> {resolved}")
+            channel_id = resolved
+
         logger.info(f"Fetching from channel: {channel_name} ({channel_id})")
 
         # Calculate time filter
         if since is None:
             since = datetime.now() - timedelta(days=self.settings.youtube.max_age_days)
-
-        published_after = since.isoformat() + "Z"
 
         try:
             # Get uploads playlist ID
@@ -229,7 +249,7 @@ class YouTubeSource(BaseSource):
             ).execute()
 
             if response.get("items"):
-                return response["items"][0]
+                return dict(response["items"][0])
             return None
 
         except HttpError as e:
