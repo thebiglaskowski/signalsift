@@ -373,12 +373,13 @@ SignalSift/
 ├── data/                     # SQLite database (git-ignored)
 ├── logs/                     # Debug logs (git-ignored)
 ├── reports/                  # Generated markdown reports (git-ignored)
-├── templates/                # Jinja2 report templates
 └── src/signalsift/
     ├── cli/                  # Click command groups (user-facing interface)
     ├── config/               # Pydantic-settings config + defaults
     ├── database/             # SQLite connection, schema, queries, migrations
     ├── processing/           # Scoring, sentiment, trends, NLP, AI summarization
+    ├── reports/
+    │   └── templates/        # Jinja2 report templates (default.md.j2)
     ├── sources/              # Reddit (RSS+API), YouTube, HackerNews adapters
     ├── utils/                # Retry logic, logging, text helpers
     └── exceptions.py         # Custom exception hierarchy

@@ -1,16 +1,12 @@
 """Tests for database query functions."""
 
-import pytest
-
 from signalsift.database.models import Keyword, RedditThread, Source, YouTubeVideo
 
 
 class TestRedditQueries:
     """Tests for Reddit database operations."""
 
-    def test_insert_and_retrieve_thread(
-        self, temp_db, sample_reddit_thread: RedditThread
-    ) -> None:
+    def test_insert_and_retrieve_thread(self, temp_db, sample_reddit_thread: RedditThread) -> None:
         """Test basic insert and retrieval."""
         from signalsift.database.queries import get_reddit_threads, insert_reddit_thread
 
@@ -29,9 +25,7 @@ class TestRedditQueries:
         insert_reddit_thread(sample_reddit_thread)
         assert thread_exists("test123")
 
-    def test_filter_by_min_score(
-        self, temp_db, sample_reddit_thread: RedditThread
-    ) -> None:
+    def test_filter_by_min_score(self, temp_db, sample_reddit_thread: RedditThread) -> None:
         """Test filtering by relevance score."""
         from signalsift.database.queries import get_reddit_threads, insert_reddit_thread
 
@@ -44,9 +38,7 @@ class TestRedditQueries:
         low_threshold = get_reddit_threads(min_score=50.0)
         assert len(low_threshold) == 1
 
-    def test_filter_by_processed(
-        self, temp_db, sample_reddit_thread: RedditThread
-    ) -> None:
+    def test_filter_by_processed(self, temp_db, sample_reddit_thread: RedditThread) -> None:
         """Test filtering by processed status."""
         from signalsift.database.queries import get_reddit_threads, insert_reddit_thread
 
@@ -82,9 +74,7 @@ class TestRedditQueries:
 class TestYouTubeQueries:
     """Tests for YouTube database operations."""
 
-    def test_insert_and_retrieve_video(
-        self, temp_db, sample_youtube_video: YouTubeVideo
-    ) -> None:
+    def test_insert_and_retrieve_video(self, temp_db, sample_youtube_video: YouTubeVideo) -> None:
         """Test basic insert and retrieval."""
         from signalsift.database.queries import get_youtube_videos, insert_youtube_video
 

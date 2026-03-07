@@ -5,7 +5,7 @@ import uuid
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -142,16 +142,16 @@ class ReportGenerator:
                 filepath=str(output_path),
                 reddit_count=len(threads),
                 youtube_count=len(videos),
-                date_range_start=min(
-                    [t.created_utc for t in threads] + [v.published_at for v in videos]
-                )
-                if threads or videos
-                else None,
-                date_range_end=max(
-                    [t.created_utc for t in threads] + [v.published_at for v in videos]
-                )
-                if threads or videos
-                else None,
+                date_range_start=(
+                    min([t.created_utc for t in threads] + [v.published_at for v in videos])
+                    if threads or videos
+                    else None
+                ),
+                date_range_end=(
+                    max([t.created_utc for t in threads] + [v.published_at for v in videos])
+                    if threads or videos
+                    else None
+                ),
                 config_snapshot=json.dumps(
                     {
                         "min_score": min_score,
@@ -295,12 +295,12 @@ class ReportGenerator:
                 threads_with_velocity.append({"thread": thread, "velocity": velocity})
 
         # Sort by velocity
-        threads_with_velocity.sort(key=lambda x: x["velocity"], reverse=True)
+        threads_with_velocity.sort(key=lambda x: cast(float, x["velocity"]), reverse=True)
 
         return {
             "rising_content": [
                 {
-                    **self._thread_to_context(item["thread"], excerpt_length),
+                    **self._thread_to_context(cast(RedditThread, item["thread"]), excerpt_length),
                     "velocity": item["velocity"],
                 }
                 for item in threads_with_velocity[:10]
@@ -314,6 +314,7 @@ class ReportGenerator:
 
         try:
             from signalsift.processing.trends import analyze_trends
+
             trends_data = analyze_trends(current_period_days=7)
         except Exception as e:
             logger.warning(f"Could not get trend data: {e}")
@@ -323,7 +324,9 @@ class ReportGenerator:
             "trends": [
                 {
                     "topic": t.topic,
-                    "change": f"+{t.change_percent}%" if t.change_percent > 0 else f"{t.change_percent}%",
+                    "change": (
+                        f"+{t.change_percent}%" if t.change_percent > 0 else f"{t.change_percent}%"
+                    ),
                     "direction": t.direction,
                     "mention_count": t.current_count,
                 }
@@ -338,14 +341,13 @@ class ReportGenerator:
                 for t in trends_data.declining[:5]
             ],
             "new_topics": [
-                {"topic": t.topic, "count": t.current_count}
-                for t in trends_data.new_topics[:5]
+                {"topic": t.topic, "count": t.current_count} for t in trends_data.new_topics[:5]
             ],
         }
 
     def _build_competitive_data(self, include_competitive: bool) -> dict[str, Any]:
         """Build competitive intelligence context."""
-        empty_result = {
+        empty_result: dict[str, Any] = {
             "competitive_intel": None,
             "top_tools": [],
             "feature_gaps": [],
@@ -356,6 +358,7 @@ class ReportGenerator:
 
         try:
             from signalsift.processing.competitive import get_competitive_intel
+
             intel = get_competitive_intel()
             competitive_data = {
                 "tool_stats": intel.get_tool_stats(days=30)[:10],
@@ -372,9 +375,13 @@ class ReportGenerator:
                 {
                     "name": s.tool_name,
                     "mentions": s.mention_count,
-                    "sentiment": "positive" if s.avg_sentiment > 0.1 else "negative" if s.avg_sentiment < -0.1 else "neutral",
+                    "sentiment": (
+                        "positive"
+                        if s.avg_sentiment > 0.1
+                        else "negative" if s.avg_sentiment < -0.1 else "neutral"
+                    ),
                 }
-                for s in competitive_data["tool_stats"][:5]
+                for s in cast(list[Any], competitive_data["tool_stats"])[:5]
             ],
             "feature_gaps": [
                 {
@@ -383,7 +390,7 @@ class ReportGenerator:
                     "demand": g.demand_level,
                     "opportunity": g.opportunity,
                 }
-                for g in competitive_data["feature_gaps"][:5]
+                for g in cast(list[Any], competitive_data["feature_gaps"])[:5]
             ],
         }
 
@@ -414,9 +421,7 @@ class ReportGenerator:
             },
         }
 
-    def _thread_to_context(
-        self, thread: RedditThread, excerpt_length: int
-    ) -> dict[str, Any]:
+    def _thread_to_context(self, thread: RedditThread, excerpt_length: int) -> dict[str, Any]:
         """Convert a Reddit thread to template context."""
         excerpt = (thread.selftext or "")[:excerpt_length]
         if len(thread.selftext or "") > excerpt_length:
@@ -445,9 +450,7 @@ class ReportGenerator:
             "tech_insight": None,
         }
 
-    def _video_to_context(
-        self, video: YouTubeVideo, excerpt_length: int
-    ) -> dict[str, Any]:
+    def _video_to_context(self, video: YouTubeVideo, excerpt_length: int) -> dict[str, Any]:
         """Convert a YouTube video to template context."""
         transcript_excerpt = (video.transcript or "")[:excerpt_length]
         if len(video.transcript or "") > excerpt_length:

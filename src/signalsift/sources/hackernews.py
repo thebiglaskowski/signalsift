@@ -31,7 +31,6 @@ DEFAULT_SEARCH_QUERIES = [
     "google algorithm",
     "organic traffic",
     "SERP",
-
     # AI/LLM related
     "AI content",
     "ChatGPT SEO",
@@ -39,26 +38,22 @@ DEFAULT_SEARCH_QUERIES = [
     "AI search engine",
     "generative search",
     "perplexity",
-
     # Content & Marketing
     "content marketing",
     "content strategy",
     "keyword research",
     "backlinks",
     "link building",
-
     # Technical
     "core web vitals",
     "page speed",
     "structured data",
     "schema markup",
     "site speed",
-
     # Tools
     "Ahrefs",
     "Semrush",
     "Moz",
-
     # Business/Monetization
     "affiliate marketing",
     "passive income website",
@@ -111,18 +106,30 @@ class HackerNewsSource(BaseSource):
         self.min_comments = min_comments
         self.request_delay = request_delay
         self._session = requests.Session()
-        self._session.headers.update({
-            "User-Agent": "SignalSift/1.0 (https://autoscript.studio)"
-        })
+        self._session.headers.update({"User-Agent": "SignalSift/1.0 (https://autoscript.studio)"})
 
     def get_source_type(self) -> str:
         """Return the source type identifier."""
         return "hackernews"
 
+    def test_connection(self) -> bool:
+        """Test connectivity to the Hacker News Algolia API."""
+        try:
+            response = self._session.get(
+                HN_SEARCH_URL,
+                params={"query": "test", "hitsPerPage": 1},
+                timeout=10,
+            )
+            response.raise_for_status()
+            return True
+        except Exception as e:
+            logger.error(f"Hacker News connection test failed: {e}")
+            return False
+
     def fetch(
         self,
         since: datetime | None = None,
-        limit: int = 100,
+        limit: int | None = None,
     ) -> list[ContentItem]:
         """
         Fetch content from Hacker News.
@@ -136,12 +143,13 @@ class HackerNewsSource(BaseSource):
         """
         if since is None:
             since = datetime.now() - timedelta(days=30)
+        effective_limit = limit if limit is not None else 100
 
         all_items: dict[str, ContentItem] = {}  # Use dict to dedupe by ID
 
         for query in self.search_queries:
             try:
-                items = self._search(query, since, limit)
+                items = self._search(query, since, effective_limit)
                 for item in items:
                     if item.id not in all_items:
                         all_items[item.id] = item

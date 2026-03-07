@@ -1,10 +1,6 @@
 """Tests for formatting utilities."""
 
-import time
 from datetime import datetime
-from unittest.mock import patch
-
-import pytest
 
 from signalsift.utils.formatting import (
     format_date,
@@ -164,11 +160,11 @@ class TestFormatFileSize:
 
     def test_format_file_size_gigabytes(self):
         """Test formatting gigabytes."""
-        assert format_file_size(1024 ** 3) == "1.0 GB"
+        assert format_file_size(1024**3) == "1.0 GB"
 
     def test_format_file_size_terabytes(self):
         """Test formatting terabytes."""
-        assert format_file_size(1024 ** 4) == "1.0 TB"
+        assert format_file_size(1024**4) == "1.0 TB"
 
 
 class TestFormatRelativeTime:

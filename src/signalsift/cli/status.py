@@ -43,9 +43,11 @@ def status(ctx: click.Context) -> None:
     reddit_table.add_row("Unprocessed", str(stats["reddit_unprocessed"]))
     reddit_table.add_row(
         "Last scan",
-        format_relative_time(stats["reddit_last_scan"].timestamp())
-        if stats["reddit_last_scan"]
-        else "Never",
+        (
+            format_relative_time(stats["reddit_last_scan"].timestamp())
+            if stats["reddit_last_scan"]
+            else "Never"
+        ),
     )
 
     console.print(reddit_table)
@@ -60,9 +62,11 @@ def status(ctx: click.Context) -> None:
     youtube_table.add_row("Unprocessed", str(stats["youtube_unprocessed"]))
     youtube_table.add_row(
         "Last scan",
-        format_relative_time(stats["youtube_last_scan"].timestamp())
-        if stats["youtube_last_scan"]
-        else "Never",
+        (
+            format_relative_time(stats["youtube_last_scan"].timestamp())
+            if stats["youtube_last_scan"]
+            else "Never"
+        ),
     )
 
     console.print(youtube_table)

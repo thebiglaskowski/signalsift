@@ -6,18 +6,18 @@ with semantically related terms, improving content matching coverage.
 
 from __future__ import annotations
 
-import hashlib
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
+
+import numpy as np
 
 from signalsift.utils.logging import get_logger
 
 if TYPE_CHECKING:
     import spacy
     from spacy.language import Language
-    from spacy.vocab import Vocab
 
     from signalsift.processing.vector_index import VocabVectorIndex
 
@@ -31,7 +31,6 @@ DEFAULT_MODEL = "en_core_web_md"
 CATEGORY_SIMILARITY_THRESHOLDS: dict[str, float] = {
     # Strict - proper nouns, tool names (should match closely)
     "tool_mentions": 0.85,
-
     # Standard - general concepts
     "success_signals": 0.75,
     "pain_points": 0.75,
@@ -83,11 +82,9 @@ class SemanticExpander:
     model_name: str = DEFAULT_MODEL
     cache_dir: Path | None = None
     _nlp: Language | None = field(default=None, repr=False)
-    _expansion_cache: dict[str, list[ExpandedKeyword]] = field(
-        default_factory=dict, repr=False
-    )
+    _expansion_cache: dict[str, list[ExpandedKeyword]] = field(default_factory=dict, repr=False)
     _model_loaded: bool = field(default=False, repr=False)
-    _vector_index: "VocabVectorIndex | None" = field(default=None, repr=False)
+    _vector_index: VocabVectorIndex | None = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
         """Initialize the expander and attempt to load the model."""
@@ -148,14 +145,12 @@ class SemanticExpander:
         cache_path = self.cache_dir / EXPANSION_CACHE_FILE
         if cache_path.exists():
             try:
-                with open(cache_path, "r", encoding="utf-8") as f:
+                with open(cache_path, encoding="utf-8") as f:
                     data = json.load(f)
 
                 # Reconstruct ExpandedKeyword objects
                 for key, expansions in data.items():
-                    self._expansion_cache[key] = [
-                        ExpandedKeyword(**exp) for exp in expansions
-                    ]
+                    self._expansion_cache[key] = [ExpandedKeyword(**exp) for exp in expansions]
 
                 logger.debug(f"Loaded {len(self._expansion_cache)} cached expansions")
             except (json.JSONDecodeError, KeyError) as e:
@@ -214,6 +209,7 @@ class SemanticExpander:
         """
         if not self.is_available:
             return []
+        assert self._nlp is not None
 
         # Check cache first
         cache_key = self._get_cache_key(keyword, category)
@@ -222,9 +218,7 @@ class SemanticExpander:
 
         # Determine threshold
         if threshold is None:
-            threshold = CATEGORY_SIMILARITY_THRESHOLDS.get(
-                category, DEFAULT_SIMILARITY_THRESHOLD
-            )
+            threshold = CATEGORY_SIMILARITY_THRESHOLDS.get(category, DEFAULT_SIMILARITY_THRESHOLD)
 
         expansions: list[ExpandedKeyword] = []
 
@@ -239,9 +233,7 @@ class SemanticExpander:
                 return []
 
             # Find similar terms in vocabulary
-            similar_terms = self._find_similar_in_vocab(
-                doc, threshold, MAX_EXPANSIONS_PER_KEYWORD
-            )
+            similar_terms = self._find_similar_in_vocab(doc, threshold, MAX_EXPANSIONS_PER_KEYWORD)
 
             # Create expanded keywords
             derived_weight = base_weight * EXPANSION_WEIGHT_FACTOR
@@ -265,9 +257,7 @@ class SemanticExpander:
             self._expansion_cache[cache_key] = expansions
 
             if expansions:
-                logger.debug(
-                    f"Expanded '{keyword}' -> {[e.expanded_term for e in expansions]}"
-                )
+                logger.debug(f"Expanded '{keyword}' -> {[e.expanded_term for e in expansions]}")
 
         except Exception as e:
             logger.warning(f"Error expanding keyword '{keyword}': {e}")
@@ -295,7 +285,7 @@ class SemanticExpander:
         # Try FAISS first (O(log n))
         if self._vector_index is not None and self._vector_index.is_built:
             return self._vector_index.search(
-                doc.vector,
+                np.asarray(doc.vector, dtype=np.float32),
                 k=max_results,
                 threshold=threshold,
             )
@@ -312,6 +302,7 @@ class SemanticExpander:
     ) -> list[tuple[str, float]]:
         """Original brute-force implementation for fallback."""
         similar: list[tuple[str, float]] = []
+        assert self._nlp is not None
 
         try:
             vocab = self._nlp.vocab

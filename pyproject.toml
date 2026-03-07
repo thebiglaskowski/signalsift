@@ -104,5 +104,6 @@ warn_unused_ignores = true
 disallow_untyped_defs = true
 
 [[tool.mypy.overrides]]
-module = ["googleapiclient.*"]
+module = ["googleapiclient.*", "feedparser", "praw", "praw.models", "requests", "textblob", "textblob.*", "faiss", "faiss.*", "openai", "anthropic"]
 ignore_missing_imports = true
+follow_imports = "skip"

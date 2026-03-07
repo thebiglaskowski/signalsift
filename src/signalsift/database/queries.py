@@ -15,7 +15,6 @@ from signalsift.database.models import (
     YouTubeVideo,
 )
 
-
 # =============================================================================
 # Reddit Thread Queries
 # =============================================================================
@@ -24,9 +23,7 @@ from signalsift.database.models import (
 def thread_exists(thread_id: str) -> bool:
     """Check if a Reddit thread already exists in the cache."""
     with get_connection() as conn:
-        cursor = conn.execute(
-            "SELECT 1 FROM reddit_threads WHERE id = ?", (thread_id,)
-        )
+        cursor = conn.execute("SELECT 1 FROM reddit_threads WHERE id = ?", (thread_id,))
         return cursor.fetchone() is not None
 
 
@@ -127,9 +124,7 @@ def get_reddit_threads(
 def video_exists(video_id: str) -> bool:
     """Check if a YouTube video already exists in the cache."""
     with get_connection() as conn:
-        cursor = conn.execute(
-            "SELECT 1 FROM youtube_videos WHERE id = ?", (video_id,)
-        )
+        cursor = conn.execute("SELECT 1 FROM youtube_videos WHERE id = ?", (video_id,))
         return cursor.fetchone() is not None
 
 
@@ -230,9 +225,7 @@ def get_youtube_videos(
 def hackernews_exists(item_id: str) -> bool:
     """Check if a Hacker News item already exists in the cache."""
     with get_connection() as conn:
-        cursor = conn.execute(
-            "SELECT 1 FROM hackernews_items WHERE id = ?", (item_id,)
-        )
+        cursor = conn.execute("SELECT 1 FROM hackernews_items WHERE id = ?", (item_id,))
         return cursor.fetchone() is not None
 
 
@@ -433,9 +426,7 @@ def reset_processed_flags() -> int:
 # =============================================================================
 
 
-def get_sources_by_type(
-    source_type: str, enabled_only: bool = True
-) -> list[Source]:
+def get_sources_by_type(source_type: str, enabled_only: bool = True) -> list[Source]:
     """Get sources by type (reddit or youtube)."""
     query = "SELECT * FROM sources WHERE source_type = ?"
     params: list[Any] = [source_type]
@@ -513,7 +504,9 @@ def remove_source(source_type: str, source_id: str) -> bool:
 # =============================================================================
 
 
-def get_keywords_by_category(category: str | None = None, enabled_only: bool = True) -> list[Keyword]:
+def get_keywords_by_category(
+    category: str | None = None, enabled_only: bool = True
+) -> list[Keyword]:
     """Get keywords, optionally filtered by category."""
     query = "SELECT * FROM keywords WHERE 1=1"
     params: list[Any] = []
@@ -586,9 +579,7 @@ def insert_report(report: Report) -> None:
 def get_reports(limit: int = 10) -> list[Report]:
     """Get recent reports."""
     with get_connection() as conn:
-        cursor = conn.execute(
-            "SELECT * FROM reports ORDER BY generated_at DESC LIMIT ?", (limit,)
-        )
+        cursor = conn.execute("SELECT * FROM reports ORDER BY generated_at DESC LIMIT ?", (limit,))
         return [Report(**dict(row)) for row in cursor.fetchall()]
 
 
@@ -615,9 +606,7 @@ def get_cache_stats() -> dict[str, Any]:
         cursor = conn.execute("SELECT COUNT(*) FROM reddit_threads WHERE processed = 0")
         stats["reddit_unprocessed"] = cursor.fetchone()[0]
 
-        cursor = conn.execute(
-            "SELECT MAX(captured_at) FROM reddit_threads"
-        )
+        cursor = conn.execute("SELECT MAX(captured_at) FROM reddit_threads")
         result = cursor.fetchone()[0]
         stats["reddit_last_scan"] = datetime.fromtimestamp(result) if result else None
 
@@ -628,16 +617,12 @@ def get_cache_stats() -> dict[str, Any]:
         cursor = conn.execute("SELECT COUNT(*) FROM youtube_videos WHERE processed = 0")
         stats["youtube_unprocessed"] = cursor.fetchone()[0]
 
-        cursor = conn.execute(
-            "SELECT MAX(captured_at) FROM youtube_videos"
-        )
+        cursor = conn.execute("SELECT MAX(captured_at) FROM youtube_videos")
         result = cursor.fetchone()[0]
         stats["youtube_last_scan"] = datetime.fromtimestamp(result) if result else None
 
         # Source stats
-        cursor = conn.execute(
-            "SELECT COUNT(*) FROM sources WHERE source_type = 'reddit'"
-        )
+        cursor = conn.execute("SELECT COUNT(*) FROM sources WHERE source_type = 'reddit'")
         stats["reddit_sources"] = cursor.fetchone()[0]
 
         cursor = conn.execute(
@@ -645,9 +630,7 @@ def get_cache_stats() -> dict[str, Any]:
         )
         stats["reddit_sources_enabled"] = cursor.fetchone()[0]
 
-        cursor = conn.execute(
-            "SELECT COUNT(*) FROM sources WHERE source_type = 'youtube'"
-        )
+        cursor = conn.execute("SELECT COUNT(*) FROM sources WHERE source_type = 'youtube'")
         stats["youtube_sources"] = cursor.fetchone()[0]
 
         cursor = conn.execute(

@@ -18,7 +18,6 @@ from signalsift.database.queries import (
     thread_exists,
     update_source_last_fetched,
 )
-from signalsift.exceptions import RedditError
 from signalsift.sources.base import BaseSource, ContentItem
 from signalsift.utils.logging import get_logger
 
@@ -46,7 +45,7 @@ class RedditRSSSource(BaseSource):
         try:
             url = "https://www.reddit.com/r/test/.rss"
             response = self._session.get(url, timeout=10)
-            return response.status_code == 200
+            return bool(response.status_code == 200)
         except Exception as e:
             logger.error(f"Reddit RSS connection test failed: {e}")
             return False
@@ -191,7 +190,7 @@ class RedditRSSSource(BaseSource):
             parts = link.split("/comments/")
             if len(parts) > 1:
                 post_id = parts[1].split("/")[0]
-                return post_id
+                return str(post_id)
         return None
 
     def _process_entry(
@@ -303,9 +302,7 @@ class RedditRSSSource(BaseSource):
     def content_item_to_thread(self, item: ContentItem) -> RedditThread:
         """Convert a ContentItem to a RedditThread model."""
         # Calculate content hash
-        content_hash = hashlib.sha256(
-            (item.title + item.content).encode()
-        ).hexdigest()
+        content_hash = hashlib.sha256((item.title + item.content).encode()).hexdigest()
 
         return RedditThread(
             id=item.id,

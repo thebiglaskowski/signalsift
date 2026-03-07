@@ -48,9 +48,7 @@ def init(ctx: click.Context) -> None:
     from signalsift.database.connection import reset_database
 
     if database_exists():
-        if not click.confirm(
-            "Database already exists. This will reset all data. Continue?"
-        ):
+        if not click.confirm("Database already exists. This will reset all data. Continue?"):
             console.print("[yellow]Cancelled.[/yellow]")
             return
 
@@ -69,8 +67,10 @@ def migrate(ctx: click.Context, check: bool, target_version: int | None) -> None
     """Run database migrations."""
     from signalsift.database.migrations import (
         get_pending_migrations,
-        migrate as run_migrate,
         migration_status,
+    )
+    from signalsift.database.migrations import (
+        migrate as run_migrate,
     )
 
     if check:

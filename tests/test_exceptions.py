@@ -144,9 +144,7 @@ class TestRetryExhaustedError:
     def test_creation_with_last_error(self):
         """Test creating RetryExhaustedError with last error."""
         original_error = ValueError("Connection timeout")
-        error = RetryExhaustedError(
-            source="youtube", attempts=5, last_error=original_error
-        )
+        error = RetryExhaustedError(source="youtube", attempts=5, last_error=original_error)
 
         assert error.source == "youtube"
         assert error.attempts == 5

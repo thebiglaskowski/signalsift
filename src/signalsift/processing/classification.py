@@ -65,7 +65,6 @@ CATEGORY_SIGNALS: dict[str, list[str]] = {
         "launched",
         "rollout",
     ],
-
     # === Monetization categories ===
     "monetization": [
         "affiliate",
@@ -98,7 +97,6 @@ CATEGORY_SIGNALS: dict[str, list[str]] = {
         "buyer guide",
         "amazon associates",
     ],
-
     # === AI visibility categories ===
     "ai_visibility": [
         "chatgpt",
@@ -112,7 +110,6 @@ CATEGORY_SIGNALS: dict[str, list[str]] = {
         "ai answers",
         "generative search",
     ],
-
     # === AI content categories ===
     "ai_content": [
         "ai writer",
@@ -124,7 +121,6 @@ CATEGORY_SIGNALS: dict[str, list[str]] = {
         "gpt-4",
         "content at scale",
     ],
-
     # === Image generation categories ===
     "image_generation": [
         "dall-e",
@@ -135,7 +131,6 @@ CATEGORY_SIGNALS: dict[str, list[str]] = {
         "ai art",
         "image generator",
     ],
-
     # === Static site categories ===
     "static_sites": [
         "static site",
@@ -146,7 +141,6 @@ CATEGORY_SIGNALS: dict[str, list[str]] = {
         "schema markup",
         "structured data",
     ],
-
     # === Competitor analysis categories ===
     "competitor_analysis": [
         "competitor",
@@ -166,7 +160,6 @@ CATEGORY_SIGNALS: dict[str, list[str]] = {
         "template",
         "framework",
     ],
-
     # === Keyword research categories ===
     "keyword_research": [
         "keyword research",
@@ -244,7 +237,7 @@ def classify_content(
         Category identifier string.
     """
     text_lower = text.lower()
-    scores: dict[str, float] = {cat: 0.0 for cat in CATEGORY_SIGNALS}
+    scores: dict[str, float] = dict.fromkeys(CATEGORY_SIGNALS, 0.0)
 
     # Score based on signal presence
     for category, signals in CATEGORY_SIGNALS.items():
@@ -293,22 +286,18 @@ def get_category_group(category: str) -> str | None:
         "tool_comparison": "general",
         "technique": "techniques",
         "industry_news": "news",
-
         # Monetization
         "monetization": "monetization",
         "roi_analysis": "monetization",
         "ecommerce": "monetization",
-
         # AI
         "ai_visibility": "ai",
         "ai_content": "ai",
         "image_generation": "ai",
-
         # Technical
         "static_sites": "technical",
         "competitor_analysis": "competitive",
         "content_brief": "competitive",
-
         # Research
         "keyword_research": "research",
         "local_seo": "research",

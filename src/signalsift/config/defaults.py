@@ -89,7 +89,6 @@ DEFAULT_YOUTUBE_CHANNELS = {
     "UC8butISFwT-Wl7EV0hUK0BQ": "freeCodeCamp",
     "UCvjgXvBlHQA9_0IIrKCa8Nw": "Fireship",
     "UC-8QAzbLcRglXeN_MY9blyw": "Ben Awad",
-
     # AI & Tech News
     "UCWN3xxRkmTPmbKwht9FuE5A": "Siraj Raval",
     "UCbmNph6atAoGfqLoCL_duAg": "Sam Witteveen",
@@ -145,7 +144,6 @@ DEFAULT_KEYWORDS = {
         "not getting results",
         "algorithm update",
     ],
-
     # === Core Tool Categories (1.2-1.3 weight) ===
     "tool_mentions": [
         # Comparison patterns
@@ -244,7 +242,6 @@ DEFAULT_KEYWORDS = {
         "domain authority",
         "topical authority",
     ],
-
     # === Supporting Categories (1.1-1.2 weight) ===
     "techniques": [
         # Specific tactics
@@ -289,7 +286,6 @@ DEFAULT_KEYWORDS = {
         "near me",
         "service area",
     ],
-
     # === Trend/News Signals (1.0 weight) ===
     "trends": [
         "just launched",

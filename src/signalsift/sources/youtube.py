@@ -44,13 +44,10 @@ class YouTubeSource(BaseSource):
         if self._youtube is None:
             if not self.settings.has_youtube_credentials():
                 raise YouTubeError(
-                    "YouTube API key not configured. "
-                    "Set YOUTUBE_API_KEY environment variable."
+                    "YouTube API key not configured. " "Set YOUTUBE_API_KEY environment variable."
                 )
 
-            self._youtube = build(
-                "youtube", "v3", developerKey=self.settings.youtube.api_key
-            )
+            self._youtube = build("youtube", "v3", developerKey=self.settings.youtube.api_key)
         return self._youtube
 
     def get_source_type(self) -> str:
@@ -147,10 +144,14 @@ class YouTubeSource(BaseSource):
     def _resolve_handle(self, handle: str) -> str | None:
         """Resolve a @handle to a channel ID via the YouTube API."""
         try:
-            response = self.youtube.channels().list(
-                part="id",
-                forHandle=handle.lstrip("@"),
-            ).execute()
+            response = (
+                self.youtube.channels()
+                .list(
+                    part="id",
+                    forHandle=handle.lstrip("@"),
+                )
+                .execute()
+            )
             items = response.get("items", [])
             return items[0]["id"] if items else None
         except HttpError as e:
@@ -183,25 +184,33 @@ class YouTubeSource(BaseSource):
 
         try:
             # Get uploads playlist ID
-            channels_response = self.youtube.channels().list(
-                part="contentDetails",
-                id=channel_id,
-            ).execute()
+            channels_response = (
+                self.youtube.channels()
+                .list(
+                    part="contentDetails",
+                    id=channel_id,
+                )
+                .execute()
+            )
 
             if not channels_response.get("items"):
                 logger.warning(f"Channel not found: {channel_id}")
                 return []
 
-            uploads_playlist_id = (
-                channels_response["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
-            )
+            uploads_playlist_id = channels_response["items"][0]["contentDetails"][
+                "relatedPlaylists"
+            ]["uploads"]
 
             # Get videos from uploads playlist
-            videos_response = self.youtube.playlistItems().list(
-                part="snippet,contentDetails",
-                playlistId=uploads_playlist_id,
-                maxResults=min(limit, 50),  # API max is 50
-            ).execute()
+            videos_response = (
+                self.youtube.playlistItems()
+                .list(
+                    part="snippet,contentDetails",
+                    playlistId=uploads_playlist_id,
+                    maxResults=min(limit, 50),  # API max is 50
+                )
+                .execute()
+            )
 
             items: list[ContentItem] = []
 
@@ -243,10 +252,14 @@ class YouTubeSource(BaseSource):
     def _get_video_details(self, video_id: str) -> dict[str, Any] | None:
         """Get detailed information for a video."""
         try:
-            response = self.youtube.videos().list(
-                part="snippet,contentDetails,statistics",
-                id=video_id,
-            ).execute()
+            response = (
+                self.youtube.videos()
+                .list(
+                    part="snippet,contentDetails,statistics",
+                    id=video_id,
+                )
+                .execute()
+            )
 
             if response.get("items"):
                 return dict(response["items"][0])
@@ -347,7 +360,7 @@ class YouTubeSource(BaseSource):
             logger.warning(f"Video unavailable: {video_id}")
             return None
         except Exception as e:
-            logger.error(f"Error getting transcript for {video_id}: {e}")
+            logger.debug(f"Could not fetch transcript for {video_id}: {type(e).__name__}")
             return None
 
     def _clean_transcript(self, text: str) -> str:

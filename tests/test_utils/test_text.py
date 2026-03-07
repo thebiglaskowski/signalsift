@@ -1,7 +1,5 @@
 """Tests for text processing utilities."""
 
-import pytest
-
 from signalsift.utils.text import (
     clean_text,
     contains_metrics,

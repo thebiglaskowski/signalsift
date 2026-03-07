@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 from signalsift.utils.logging import get_logger
 
@@ -153,9 +153,10 @@ class LLMAnalyzer:
             provider: "openai" or "anthropic". Auto-detects if not specified.
         """
         self._max_tokens = max_tokens
-        self._client = None
+        self._client: Any = None
         self._available = False
         self._provider = provider
+        self._api_key: str | None = None
 
         # Auto-detect provider and API key
         if api_key:
@@ -199,7 +200,7 @@ class LLMAnalyzer:
                 self._available = True
                 logger.info(f"LLM analyzer initialized (OpenAI): {self._model}")
 
-        except ImportError as e:
+        except ImportError:
             if self._provider == "anthropic":
                 logger.warning(
                     "Anthropic SDK not installed - LLM analysis unavailable. "
@@ -234,7 +235,7 @@ class LLMAnalyzer:
                     max_tokens=self._max_tokens,
                     messages=[{"role": "user", "content": prompt}],
                 )
-                return message.content[0].text
+                return cast(str, message.content[0].text)
             else:
                 # OpenAI
                 response = self._client.chat.completions.create(
@@ -242,7 +243,7 @@ class LLMAnalyzer:
                     max_tokens=self._max_tokens,
                     messages=[{"role": "user", "content": prompt}],
                 )
-                return response.choices[0].message.content
+                return cast(str | None, response.choices[0].message.content)
 
         except Exception as e:
             logger.warning(f"LLM API call failed: {e}")
@@ -390,14 +391,14 @@ class LLMAnalyzer:
             response = response[start:end].strip()
 
         try:
-            return json.loads(response)
+            return cast(dict[Any, Any], json.loads(response))
         except json.JSONDecodeError:
             # Try to find JSON object in response
             try:
                 start = response.find("{")
                 end = response.rfind("}") + 1
                 if start >= 0 and end > start:
-                    return json.loads(response[start:end])
+                    return cast(dict[Any, Any], json.loads(response[start:end]))
             except json.JSONDecodeError:
                 pass
 

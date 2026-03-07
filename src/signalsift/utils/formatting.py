@@ -100,11 +100,12 @@ def format_file_size(size_bytes: int) -> str:
     Returns:
         Formatted size string (e.g., "2.5 MB").
     """
+    size: float = float(size_bytes)
     for unit in ["B", "KB", "MB", "GB"]:
-        if size_bytes < 1024:
-            return f"{size_bytes:.1f} {unit}"
-        size_bytes /= 1024
-    return f"{size_bytes:.1f} TB"
+        if size < 1024:
+            return f"{size:.1f} {unit}"
+        size /= 1024
+    return f"{size:.1f} TB"
 
 
 def format_relative_time(timestamp: int | float) -> str:

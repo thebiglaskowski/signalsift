@@ -204,14 +204,40 @@ class SentimentAnalyzer:
     def _pattern_based_sentiment(self, text: str) -> tuple[float, float]:
         """Calculate sentiment using pattern matching (fallback)."""
         positive_words = [
-            "good", "great", "excellent", "amazing", "love", "best",
-            "helpful", "useful", "recommend", "success", "improved",
-            "increased", "working", "easy", "simple", "effective",
+            "good",
+            "great",
+            "excellent",
+            "amazing",
+            "love",
+            "best",
+            "helpful",
+            "useful",
+            "recommend",
+            "success",
+            "improved",
+            "increased",
+            "working",
+            "easy",
+            "simple",
+            "effective",
         ]
         negative_words = [
-            "bad", "terrible", "worst", "hate", "awful", "useless",
-            "broken", "frustrated", "struggling", "failed", "dropped",
-            "lost", "difficult", "expensive", "slow", "buggy",
+            "bad",
+            "terrible",
+            "worst",
+            "hate",
+            "awful",
+            "useless",
+            "broken",
+            "frustrated",
+            "struggling",
+            "failed",
+            "dropped",
+            "lost",
+            "difficult",
+            "expensive",
+            "slow",
+            "buggy",
         ]
 
         positive_count = sum(1 for word in positive_words if word in text)

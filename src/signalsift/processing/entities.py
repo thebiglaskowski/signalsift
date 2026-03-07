@@ -26,7 +26,9 @@ class ToolMention:
     tool: str
     context: str  # Surrounding text for sentiment inference
     position: int  # Character position in text
-    sentiment_hint: str | None = None  # "positive", "negative", "neutral", "switching_from", "switching_to"
+    sentiment_hint: str | None = (
+        None  # "positive", "negative", "neutral", "switching_from", "switching_to"
+    )
 
 
 @dataclass
@@ -72,7 +74,6 @@ KNOWN_TOOLS: dict[str, dict[str, str]] = {
     "ubersuggest": {"category": "all-in-one", "tier": "budget"},
     "mangools": {"category": "keyword", "tier": "budget"},
     "kwfinder": {"category": "keyword", "tier": "budget"},
-
     # Content optimization
     "surfer": {"category": "content", "tier": "mid"},
     "surfer seo": {"category": "content", "tier": "mid"},
@@ -80,13 +81,11 @@ KNOWN_TOOLS: dict[str, dict[str, str]] = {
     "marketmuse": {"category": "content", "tier": "enterprise"},
     "frase": {"category": "content", "tier": "mid"},
     "neuronwriter": {"category": "content", "tier": "budget"},
-
     # Technical SEO
     "screaming frog": {"category": "technical", "tier": "mid"},
     "sitebulb": {"category": "technical", "tier": "mid"},
     "deepcrawl": {"category": "technical", "tier": "enterprise"},
     "botify": {"category": "technical", "tier": "enterprise"},
-
     # AI content tools
     "jasper": {"category": "ai_content", "tier": "mid"},
     "copy.ai": {"category": "ai_content", "tier": "mid"},
@@ -96,18 +95,15 @@ KNOWN_TOOLS: dict[str, dict[str, str]] = {
     "article forge": {"category": "ai_content", "tier": "mid"},
     "zimmwriter": {"category": "ai_content", "tier": "budget"},
     "byword": {"category": "ai_content", "tier": "mid"},
-
     # Link building
     "pitchbox": {"category": "outreach", "tier": "enterprise"},
     "buzzstream": {"category": "outreach", "tier": "mid"},
     "hunter.io": {"category": "outreach", "tier": "mid"},
     "respona": {"category": "outreach", "tier": "mid"},
-
     # Rank tracking
     "accuranker": {"category": "rank_tracking", "tier": "mid"},
     "wincher": {"category": "rank_tracking", "tier": "budget"},
     "serprobot": {"category": "rank_tracking", "tier": "budget"},
-
     # Other tools
     "spyfu": {"category": "competitor", "tier": "mid"},
     "similarweb": {"category": "competitor", "tier": "enterprise"},
@@ -172,9 +168,19 @@ DOMAIN_PATTERN = re.compile(
 # Money patterns
 MONEY_PATTERNS = [
     # $X,XXX or $X.XX format
-    (re.compile(r"\$\s*([\d,]+(?:\.\d{2})?)\s*(?:k|K)?(?:/(?:mo|month|yr|year|day))?", re.IGNORECASE), "USD"),
+    (
+        re.compile(
+            r"\$\s*([\d,]+(?:\.\d{2})?)\s*(?:k|K)?(?:/(?:mo|month|yr|year|day))?", re.IGNORECASE
+        ),
+        "USD",
+    ),
     # Xk/month format
-    (re.compile(r"([\d.]+)\s*(?:k|K)\s*(?:/|per\s*)?(mo|month|monthly|yr|year|yearly)?", re.IGNORECASE), "USD"),
+    (
+        re.compile(
+            r"([\d.]+)\s*(?:k|K)\s*(?:/|per\s*)?(mo|month|monthly|yr|year|yearly)?", re.IGNORECASE
+        ),
+        "USD",
+    ),
     # EUR format
     (re.compile(r"([\d,]+(?:\.\d{2})?)\s*(?:€|EUR|euros?)", re.IGNORECASE), "EUR"),
     # GBP format
@@ -361,7 +367,7 @@ class EntityExtractor:
                     # Also check surrounding context for period
                     if period is None:
                         context_end = min(len(text), match.end() + 20)
-                        after_text = text[match.end():context_end].lower()
+                        after_text = text[match.end() : context_end].lower()
                         for key, value in PERIOD_KEYWORDS.items():
                             if key in after_text:
                                 period = value

@@ -1,0 +1,341 @@
+# SignalSift Report — {{ date_range_start }}{% if date_range_start != date_range_end %} to {{ date_range_end }}{% endif %}
+
+> Generated {{ generated_at }} · {{ new_count }} items · {{ sources_summary }} · v{{ version }}
+
+---
+
+## Summary
+
+| Source | Count |
+|--------|-------|
+| Reddit | {{ reddit_count }} |
+| YouTube | {{ youtube_count }} |
+| **Total** | **{{ new_count }}** |
+
+{% if top_themes %}
+**Top themes:** {{ top_themes | join(", ") }}
+{% endif %}
+
+---
+{% if pain_points %}
+
+## Pain Points
+
+*What people are struggling with.*
+
+{% for item in pain_points %}
+### {{ item.title | truncate(90) }}
+
+**{{ item.source_badge }}** · Score {{ item.relevance_score }} · {{ item.engagement }}
+{% if item.matched_keywords %}
+Keywords: `{{ item.matched_keywords | join("`, `") }}`
+{% endif %}
+{% if item.excerpt %}
+
+{{ item.excerpt }}
+{% endif %}
+{% if item.takeaway %}
+> **Takeaway:** {{ item.takeaway }}
+{% endif %}
+
+[View thread]({{ item.url }})
+
+{% endfor %}
+{% endif %}
+{% if success_stories %}
+
+---
+
+## Success Stories
+
+*What's working for people.*
+
+{% for item in success_stories %}
+### {{ item.title | truncate(90) }}
+
+**{{ item.source_badge }}** · Score {{ item.relevance_score }} · {{ item.engagement }}
+{% if item.matched_keywords %}
+Keywords: `{{ item.matched_keywords | join("`, `") }}`
+{% endif %}
+{% if item.excerpt %}
+
+{{ item.excerpt }}
+{% endif %}
+
+[View thread]({{ item.url }})
+
+{% endfor %}
+{% endif %}
+{% if tool_mentions %}
+
+---
+
+## Tool Mentions & Comparisons
+
+*Tools people are discussing, comparing, or switching between.*
+
+{% for item in tool_mentions %}
+### {{ item.title | truncate(90) }}
+
+**{{ item.source_badge }}** · Score {{ item.relevance_score }} · {{ item.engagement }}
+{% if item.matched_keywords %}
+Keywords: `{{ item.matched_keywords | join("`, `") }}`
+{% endif %}
+{% if item.excerpt %}
+
+{{ item.excerpt }}
+{% endif %}
+{% if item.competitive_angle %}
+> **Competitive angle:** {{ item.competitive_angle }}
+{% endif %}
+
+[View thread]({{ item.url }})
+
+{% endfor %}
+{% endif %}
+{% if rising_content %}
+
+---
+
+## Rising Content
+
+*High engagement velocity — trending now.*
+
+{% for item in rising_content %}
+### {{ item.title | truncate(90) }}
+
+**{{ item.source_badge }}** · Score {{ item.relevance_score }} · {{ item.engagement }} · Velocity {{ "%.1f"|format(item.velocity) }}/hr
+{% if item.excerpt %}
+
+{{ item.excerpt }}
+{% endif %}
+
+[View thread]({{ item.url }})
+
+{% endfor %}
+{% endif %}
+{% if youtube_videos %}
+
+---
+
+## YouTube
+
+{% for video in youtube_videos %}
+### {{ video.title | truncate(90) }}
+
+**{{ video.channel_name }}** · {{ video.view_count | format_number }} views · {{ video.duration_formatted }}
+{% if video.matched_keywords %}
+Keywords: `{{ video.matched_keywords | join("`, `") }}`
+{% endif %}
+{% if video.transcript_excerpt %}
+
+{{ video.transcript_excerpt }}
+{% endif %}
+
+[Watch video]({{ video.url }})
+
+{% endfor %}
+{% endif %}
+{% if monetization_insights %}
+
+---
+
+## Monetization Insights
+
+{% for item in monetization_insights %}
+### {{ item.title | truncate(90) }}
+
+**{{ item.source_badge }}** · {{ item.engagement }}
+{% if item.monetization_angle %}
+> {{ item.monetization_angle }}
+{% elif item.excerpt %}
+
+{{ item.excerpt }}
+{% endif %}
+
+[View thread]({{ item.url }})
+
+{% endfor %}
+{% endif %}
+{% if ai_visibility_insights %}
+
+---
+
+## AI Visibility / GEO
+
+{% for item in ai_visibility_insights %}
+### {{ item.title | truncate(90) }}
+
+**{{ item.source_badge }}** · {{ item.engagement }}
+{% if item.excerpt %}
+
+{{ item.excerpt }}
+{% endif %}
+
+[View thread]({{ item.url }})
+
+{% endfor %}
+{% endif %}
+{% if keyword_research_insights %}
+
+---
+
+## Keyword Research
+
+{% for item in keyword_research_insights %}
+### {{ item.title | truncate(90) }}
+
+**{{ item.source_badge }}** · {{ item.engagement }}
+{% if item.keyword_opportunity %}
+> **Opportunity:** {{ item.keyword_opportunity }}
+{% elif item.excerpt %}
+
+{{ item.excerpt }}
+{% endif %}
+
+[View thread]({{ item.url }})
+
+{% endfor %}
+{% endif %}
+{% if content_generation_insights %}
+
+---
+
+## AI Content & Content Generation
+
+{% for item in content_generation_insights %}
+### {{ item.title | truncate(90) }}
+
+**{{ item.source_badge }}** · {{ item.engagement }}
+{% if item.content_strategy %}
+> {{ item.content_strategy }}
+{% elif item.excerpt %}
+
+{{ item.excerpt }}
+{% endif %}
+
+[View thread]({{ item.url }})
+
+{% endfor %}
+{% endif %}
+{% if competition_insights %}
+
+---
+
+## Competitive Research
+
+{% for item in competition_insights %}
+### {{ item.title | truncate(90) }}
+
+**{{ item.source_badge }}** · {{ item.engagement }}
+{% if item.competitive_angle %}
+> {{ item.competitive_angle }}
+{% elif item.excerpt %}
+
+{{ item.excerpt }}
+{% endif %}
+
+[View thread]({{ item.url }})
+
+{% endfor %}
+{% endif %}
+{% if trends or emerging_trends or new_topics %}
+
+---
+
+## Trends
+
+{% if emerging_trends %}
+### Emerging
+
+| Topic | Change | Mentions |
+|-------|--------|----------|
+{% for t in emerging_trends %}
+| {{ t.topic }} | {{ t.change }} | {{ t.count }} |
+{% endfor %}
+
+{% endif %}
+{% if new_topics %}
+### New This Period
+
+{% for t in new_topics %}
+- **{{ t.topic }}** ({{ t.count }} mentions)
+{% endfor %}
+
+{% endif %}
+{% if declining_trends %}
+### Declining
+
+| Topic | Change | Mentions |
+|-------|--------|----------|
+{% for t in declining_trends %}
+| {{ t.topic }} | {{ t.change }} | {{ t.count }} |
+{% endfor %}
+
+{% endif %}
+{% endif %}
+{% if top_tools %}
+
+---
+
+## Competitive Intelligence
+
+{% if top_tools %}
+### Top Tools by Mention
+
+| Tool | Mentions | Sentiment |
+|------|----------|-----------|
+{% for tool in top_tools %}
+| {{ tool.name }} | {{ tool.mentions }} | {{ tool.sentiment }} |
+{% endfor %}
+
+{% endif %}
+{% if feature_gaps %}
+### Feature Gaps & Opportunities
+
+{% for gap in feature_gaps %}
+- **{{ gap.tool }}** — {{ gap.description }} *({{ gap.demand }} demand, opportunity: {{ gap.opportunity }})*
+{% endfor %}
+
+{% endif %}
+{% if competitive_intel and competitive_intel.market_movers %}
+{% set gainers = competitive_intel.market_movers[0] %}
+{% set losers = competitive_intel.market_movers[1] %}
+{% if gainers %}
+**Gaining:** {{ gainers | join(", ") }}
+{% endif %}
+{% if losers %}
+**Losing:** {{ losers | join(", ") }}
+{% endif %}
+{% endif %}
+{% endif %}
+
+---
+
+## All Reddit Content by Subreddit
+
+{% for subreddit, items in reddit_by_subreddit.items() %}
+### r/{{ subreddit }} ({{ items | length }})
+
+{% for item in items %}
+- [{{ item.title | truncate(80) }}]({{ item.url }}) — {{ item.engagement }}
+{% endfor %}
+
+{% endfor %}
+{% if youtube_by_channel %}
+
+## All YouTube Content by Channel
+
+{% for channel, videos in youtube_by_channel.items() %}
+### {{ channel }} ({{ videos | length }})
+
+{% for video in videos %}
+- [{{ video.title | truncate(80) }}]({{ video.url }}) — {{ video.view_count | format_number }} views
+{% endfor %}
+
+{% endfor %}
+{% endif %}
+
+---
+
+*SignalSift v{{ version }} · {{ generated_at }}*

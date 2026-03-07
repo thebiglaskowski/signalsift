@@ -7,9 +7,9 @@ schema changes to the SQLite database.
 from __future__ import annotations
 
 import sqlite3
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Callable
 
 from signalsift.database.connection import get_connection
 from signalsift.utils.logging import get_logger
@@ -187,15 +187,9 @@ def migrate_v1(conn: sqlite3.Connection) -> None:
 @migration(2, "add_hackernews_indexes")
 def migrate_v2(conn: sqlite3.Connection) -> None:
     """Add additional indexes for HackerNews queries."""
-    conn.execute(
-        "CREATE INDEX IF NOT EXISTS idx_hn_story_type ON hackernews_items(story_type)"
-    )
-    conn.execute(
-        "CREATE INDEX IF NOT EXISTS idx_hn_points ON hackernews_items(points)"
-    )
-    conn.execute(
-        "CREATE INDEX IF NOT EXISTS idx_hn_created_utc ON hackernews_items(created_utc)"
-    )
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_hn_story_type ON hackernews_items(story_type)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_hn_points ON hackernews_items(points)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_hn_created_utc ON hackernews_items(created_utc)")
 
 
 @migration(3, "add_content_indexes")
@@ -206,20 +200,14 @@ def migrate_v3(conn: sqlite3.Connection) -> None:
         "CREATE INDEX IF NOT EXISTS idx_reddit_subreddit_score "
         "ON reddit_threads(subreddit, relevance_score DESC)"
     )
-    conn.execute(
-        "CREATE INDEX IF NOT EXISTS idx_reddit_category "
-        "ON reddit_threads(category)"
-    )
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_reddit_category " "ON reddit_threads(category)")
 
     # YouTube indexes
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_youtube_channel_score "
         "ON youtube_videos(channel_id, relevance_score DESC)"
     )
-    conn.execute(
-        "CREATE INDEX IF NOT EXISTS idx_youtube_category "
-        "ON youtube_videos(category)"
-    )
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_youtube_category " "ON youtube_videos(category)")
 
 
 # Future migrations would be added here:

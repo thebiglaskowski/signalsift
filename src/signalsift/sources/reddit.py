@@ -229,9 +229,7 @@ class RedditSource(BaseSource):
     def content_item_to_thread(self, item: ContentItem) -> RedditThread:
         """Convert a ContentItem to a RedditThread model."""
         # Calculate content hash
-        content_hash = hashlib.sha256(
-            (item.title + item.content).encode()
-        ).hexdigest()
+        content_hash = hashlib.sha256((item.title + item.content).encode()).hexdigest()
 
         return RedditThread(
             id=item.id,

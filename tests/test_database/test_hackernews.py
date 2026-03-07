@@ -1,7 +1,5 @@
 """Tests for HackerNews model and queries."""
 
-import pytest
-
 from signalsift.database.models import HackerNewsItem
 
 

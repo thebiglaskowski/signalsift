@@ -7,7 +7,6 @@ and declining trends across scans.
 from __future__ import annotations
 
 import sqlite3
-from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -174,9 +173,7 @@ class TrendDetector:
             with sqlite3.connect(self.db_path) as conn:
                 for keyword, data in keyword_data.items():
                     avg_engagement = (
-                        data["total_engagement"] / data["count"]
-                        if data["count"] > 0
-                        else 0
+                        data["total_engagement"] / data["count"] if data["count"] > 0 else 0
                     )
 
                     conn.execute(
@@ -219,7 +216,6 @@ class TrendDetector:
         Returns:
             TrendReport with categorized trends.
         """
-        import json
 
         now = datetime.now()
         current_end = now
@@ -243,8 +239,12 @@ class TrendDetector:
         all_keywords = set(current_data.keys()) | set(comparison_data.keys())
 
         for keyword in all_keywords:
-            current = current_data.get(keyword, {"count": 0, "engagement": 0, "titles": [], "category": "unknown"})
-            previous = comparison_data.get(keyword, {"count": 0, "engagement": 0, "titles": [], "category": "unknown"})
+            current = current_data.get(
+                keyword, {"count": 0, "engagement": 0, "titles": [], "category": "unknown"}
+            )
+            previous = comparison_data.get(
+                keyword, {"count": 0, "engagement": 0, "titles": [], "category": "unknown"}
+            )
 
             current_count = current["count"]
             previous_count = previous["count"]
@@ -425,7 +425,7 @@ class TrendDetector:
         data = self._get_period_data(start, end)
 
         if keyword.lower() in data:
-            return data[keyword.lower()]["count"] / days
+            return float(data[keyword.lower()]["count"]) / days
         return 0.0
 
 

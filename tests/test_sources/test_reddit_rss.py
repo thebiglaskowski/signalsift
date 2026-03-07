@@ -1,6 +1,6 @@
 """Tests for Reddit RSS source adapter."""
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -131,7 +131,9 @@ class TestExtractContent:
 
     def test_extract_content_strips_html(self, source):
         """Test that HTML tags are stripped."""
-        entry = self._make_entry(summary="<div><p><strong>Bold</strong> and <em>italic</em></p></div>")
+        entry = self._make_entry(
+            summary="<div><p><strong>Bold</strong> and <em>italic</em></p></div>"
+        )
         result = source._extract_content(entry)
         assert "Bold" in result
         assert "italic" in result
@@ -174,11 +176,13 @@ class TestProcessEntry:
         """Test processing a valid RSS entry."""
         # Create a mock entry that behaves like feedparser entry
         entry = MagicMock()
-        entry.get = MagicMock(side_effect=lambda k, d=None: {
-            "link": "https://www.reddit.com/r/SEO/comments/xyz789/test_post",
-            "title": "Test Post Title",
-            "published": "Mon, 01 Jan 2024 12:00:00 GMT",
-        }.get(k, d))
+        entry.get = MagicMock(
+            side_effect=lambda k, d=None: {
+                "link": "https://www.reddit.com/r/SEO/comments/xyz789/test_post",
+                "title": "Test Post Title",
+                "published": "Mon, 01 Jan 2024 12:00:00 GMT",
+            }.get(k, d)
+        )
         entry.__contains__ = lambda self, x: x in ["content", "summary", "author_detail"]
         entry.content = [{"value": "<p>Test content here</p>"}]
         entry.summary = ""

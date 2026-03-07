@@ -1,9 +1,9 @@
 """Database connection management for SignalSift."""
 
 import sqlite3
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Generator
 
 from signalsift.config import get_settings
 from signalsift.config.defaults import (
@@ -97,25 +97,22 @@ def _populate_default_keywords(conn: sqlite3.Connection) -> None:
     # Higher weights = more important signals for product enhancement ideas
     category_weights: dict[str, float] = {
         # High-value signals (1.5) - Direct indicators of opportunities
-        "success_signals": 1.5,      # Success stories reveal what works
-        "pain_points": 1.5,          # Pain points reveal feature gaps
-
+        "success_signals": 1.5,  # Success stories reveal what works
+        "pain_points": 1.5,  # Pain points reveal feature gaps
         # Core package signals (1.3) - Primary package relevance
-        "monetization": 1.3,         # revenue strategies
-        "ai_visibility": 1.3,        # AI search optimization
-        "keyword_research": 1.3,     # keyword discovery
-        "content_generation": 1.3,   # AI content creation
-        "competition": 1.3,          # competitive analysis
-
+        "monetization": 1.3,  # revenue strategies
+        "ai_visibility": 1.3,  # AI search optimization
+        "keyword_research": 1.3,  # keyword discovery
+        "content_generation": 1.3,  # AI content creation
+        "competition": 1.3,  # competitive analysis
         # Supporting signals (1.2) - Secondary relevance
-        "tool_mentions": 1.2,        # competitor and tool insights
-        "techniques": 1.2,           # tactics and methods
-        "image_generation": 1.2,     # visual content
-        "static_sites": 1.2,         # site optimization
-        "ecommerce": 1.2,            # e-commerce strategies
-
+        "tool_mentions": 1.2,  # competitor and tool insights
+        "techniques": 1.2,  # tactics and methods
+        "image_generation": 1.2,  # visual content
+        "static_sites": 1.2,  # site optimization
+        "ecommerce": 1.2,  # e-commerce strategies
         # Supplementary signals (1.1) - Broader context
-        "local_seo": 1.1,            # local keywords
+        "local_seo": 1.1,  # local keywords
     }
 
     for category, keywords in DEFAULT_KEYWORDS.items():

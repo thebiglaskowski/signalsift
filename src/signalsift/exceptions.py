@@ -52,9 +52,7 @@ class HackerNewsError(SourceError):
 class RetryExhaustedError(SourceError):
     """Raised when all retry attempts have failed."""
 
-    def __init__(
-        self, source: str, attempts: int, last_error: Exception | None = None
-    ) -> None:
+    def __init__(self, source: str, attempts: int, last_error: Exception | None = None) -> None:
         self.source = source
         self.attempts = attempts
         self.last_error = last_error

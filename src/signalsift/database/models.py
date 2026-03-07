@@ -2,7 +2,7 @@
 
 import json
 from datetime import datetime
-from typing import Any
+from typing import Any, cast
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -34,10 +34,10 @@ class RedditThread(BaseModel):
         """Parse keywords from JSON string if needed."""
         if isinstance(v, str):
             try:
-                return json.loads(v)
+                return cast(list[str], json.loads(v))
             except json.JSONDecodeError:
                 return []
-        return v or []
+        return cast(list[str], v) if v else []
 
     def to_db_dict(self) -> dict[str, Any]:
         """Convert to dictionary for database insertion."""
@@ -101,10 +101,10 @@ class YouTubeVideo(BaseModel):
         """Parse keywords from JSON string if needed."""
         if isinstance(v, str):
             try:
-                return json.loads(v)
+                return cast(list[str], json.loads(v))
             except json.JSONDecodeError:
                 return []
-        return v or []
+        return cast(list[str], v) if v else []
 
     def to_db_dict(self) -> dict[str, Any]:
         """Convert to dictionary for database insertion."""
@@ -230,10 +230,10 @@ class HackerNewsItem(BaseModel):
         """Parse keywords from JSON string if needed."""
         if isinstance(v, str):
             try:
-                return json.loads(v)
+                return cast(list[str], json.loads(v))
             except json.JSONDecodeError:
                 return []
-        return v or []
+        return cast(list[str], v) if v else []
 
     def to_db_dict(self) -> dict[str, Any]:
         """Convert to dictionary for database insertion."""

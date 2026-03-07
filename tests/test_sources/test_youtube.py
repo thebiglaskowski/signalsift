@@ -1,12 +1,12 @@
 """Tests for YouTube source adapter."""
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from signalsift.sources.youtube import YouTubeSource
 from signalsift.sources.base import ContentItem
+from signalsift.sources.youtube import YouTubeSource
 
 
 class TestYouTubeSourceInit:
@@ -47,9 +47,7 @@ class TestYouTubeProperty:
                 mock_build.return_value = MagicMock()
                 _ = source.youtube
 
-                mock_build.assert_called_once_with(
-                    "youtube", "v3", developerKey="test_api_key"
-                )
+                mock_build.assert_called_once_with("youtube", "v3", developerKey="test_api_key")
 
     def test_youtube_property_raises_without_credentials(self):
         """Test that youtube property raises error without credentials."""
@@ -246,7 +244,9 @@ class TestGetTranscript:
         """Test when no transcript available."""
         from youtube_transcript_api._errors import NoTranscriptFound
 
-        source._transcript_api.fetch = MagicMock(side_effect=NoTranscriptFound("video123", [], None))
+        source._transcript_api.fetch = MagicMock(
+            side_effect=NoTranscriptFound("video123", [], None)
+        )
 
         result = source._get_transcript("video123")
 

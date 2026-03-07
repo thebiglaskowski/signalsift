@@ -152,9 +152,12 @@ class TestQuoteExtractorIsWeakSentence:
 
     def test_strong_sentence_not_weak(self, extractor):
         """Test that strong sentences are not weak."""
-        assert extractor._is_weak_sentence(
-            "The key strategy that worked was focusing on long-tail keywords."
-        ) is False
+        assert (
+            extractor._is_weak_sentence(
+                "The key strategy that worked was focusing on long-tail keywords."
+            )
+            is False
+        )
 
 
 class TestQuoteExtractorScoreSentence:

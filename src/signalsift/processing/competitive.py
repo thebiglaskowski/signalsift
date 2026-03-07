@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import sqlite3
 from collections import defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -16,8 +16,6 @@ from typing import TYPE_CHECKING
 from signalsift.config.defaults import DEFAULT_DB_PATH
 from signalsift.processing.entities import (
     KNOWN_TOOLS,
-    EntityExtractor,
-    ToolMention,
     get_extractor,
 )
 from signalsift.processing.sentiment import analyze_sentiment
@@ -170,7 +168,6 @@ class CompetitiveIntelligence:
         Returns:
             Number of mentions tracked.
         """
-        import re
 
         mentions_tracked = 0
 
@@ -360,9 +357,7 @@ class CompetitiveIntelligence:
                 for tool, data in tool_data.items():
                     tool_info = KNOWN_TOOLS.get(tool, {})
                     avg_sentiment = (
-                        data["sentiment_sum"] / data["mentions"]
-                        if data["mentions"] > 0
-                        else 0
+                        data["sentiment_sum"] / data["mentions"] if data["mentions"] > 0 else 0
                     )
 
                     stats.append(

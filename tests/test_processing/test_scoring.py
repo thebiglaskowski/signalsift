@@ -1,9 +1,6 @@
 """Tests for scoring algorithms."""
 
 import time
-from datetime import datetime
-
-import pytest
 
 from signalsift.database.models import RedditThread, YouTubeVideo
 from signalsift.processing.keywords import KeywordMatch
@@ -147,9 +144,7 @@ class TestRedditScoring:
         sample_reddit_thread.num_comments = 1000
         sample_reddit_thread.selftext = "x" * 1000  # Long content
 
-        matches = [
-            KeywordMatch(f"kw{i}", "success_signals", 1.5, 5, False) for i in range(20)
-        ]
+        matches = [KeywordMatch(f"kw{i}", "success_signals", 1.5, 5, False) for i in range(20)]
         score = calculate_reddit_score(sample_reddit_thread, matches, source_tier=1)
         assert score <= 100
 
@@ -272,9 +267,7 @@ class TestHackerNewsScoring:
 
     def test_score_capped_at_100(self) -> None:
         """Score should never exceed 100."""
-        matches = [
-            KeywordMatch(f"kw{i}", "success_signals", 1.5, 5, False) for i in range(20)
-        ]
+        matches = [KeywordMatch(f"kw{i}", "success_signals", 1.5, 5, False) for i in range(20)]
         score = calculate_hackernews_score(
             points=1000,
             num_comments=500,

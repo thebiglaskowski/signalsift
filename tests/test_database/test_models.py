@@ -2,8 +2,6 @@
 
 import json
 
-import pytest
-
 from signalsift.database.models import (
     Keyword,
     RedditThread,
