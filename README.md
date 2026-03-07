@@ -144,6 +144,22 @@ You can also use any custom category name — e.g., `--category crypto` or `--ca
 - Intent patterns catch high-signal posts — `"switched from"`, `"struggling with"`, `"what worked for me"`
 - Use `--weight 1.5` for your highest-priority signals
 
+### Topic-Filtered Reports
+
+If you track multiple unrelated subjects (e.g., crypto, SEO, webdev), you can generate a focused report for just one of them:
+
+```bash
+# See which topics have keywords configured
+uv run sift report --list-topics
+
+# Generate a report for one topic only
+uv run sift report --topic crypto
+uv run sift report --topic content_generation
+uv run sift report --topic keyword_research
+```
+
+Topic names come from the `--category` you used when adding keywords. The filtered report is saved as `reports/YYYY-MM-DD-<topic>.md` so it won't overwrite your full report. No extra source configuration is needed — topics are just a filter on content already in your database from your normal scans.
+
 ### Tuning Settings
 
 The main knobs live in `src/signalsift/config/defaults.py`, but key values can be overridden via environment variables or a `config.yaml` file at the project root.
@@ -348,6 +364,8 @@ Reports are saved to `reports/YYYY-MM-DD.md`. Open the latest one with any markd
 | `uv run sift scan --youtube` | Scan YouTube only |
 | `uv run sift scan --hackernews` | Scan Hacker News only |
 | `uv run sift report` | Generate a markdown report of recent content |
+| `uv run sift report --list-topics` | Show available topic categories and exit |
+| `uv run sift report --topic <category>` | Generate a report filtered to one topic (e.g. `crypto`, `seo`) |
 | `uv run sift status` | Show database stats and configuration summary |
 | `uv run sift sources list` | List all tracked sources |
 | `uv run sift sources add <type> <id>` | Add a source (`reddit`, `youtube`) |
