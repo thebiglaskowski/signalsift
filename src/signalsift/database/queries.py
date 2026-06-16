@@ -480,6 +480,26 @@ def update_source_last_fetched(source_type: str, source_id: str) -> None:
         )
 
 
+def update_source_display_name(source_type: str, source_id: str, display_name: str) -> bool:
+    """Update the display name for a source. Returns True if source was found and updated."""
+    with get_connection() as conn:
+        cursor = conn.execute(
+            "UPDATE sources SET display_name = ? WHERE source_type = ? AND source_id = ?",
+            (display_name, source_type, source_id),
+        )
+        return cursor.rowcount > 0
+
+
+def update_youtube_video_channel_names(channel_id: str, channel_name: str) -> int:
+    """Update channel_name for all YouTube videos with the given channel_id. Returns rows updated."""
+    with get_connection() as conn:
+        cursor = conn.execute(
+            "UPDATE youtube_videos SET channel_name = ? WHERE channel_id = ?",
+            (channel_name, channel_id),
+        )
+        return cursor.rowcount
+
+
 def toggle_source(source_type: str, source_id: str, enabled: bool) -> None:
     """Enable or disable a source."""
     with get_connection() as conn:

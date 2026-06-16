@@ -655,7 +655,7 @@ class TestThreadToContext:
         assert result["url"] == "/r/SEO/comments/test123/"
         assert result["source_badge"] == "r/SEO"
         assert result["relevance_score"] == 80
-        assert result["engagement"] == "100↑ · 25 comments"
+        assert result["engagement"] == "⬆️ 100 · 💬 25"
         assert result["excerpt"] == "Test content"
         assert result["category"] == "pain_point"
 
